@@ -1,334 +1,292 @@
 ---
 name: buaa-marp-ppt
-description: >-
+description: >
   Create, edit, and manage BUAA (Beihang University) themed Marp presentations.
-  USE FOR: creating BUAA-style slides, generating Marp PPT from outlines,
-  auto-layout of mixed content (text/images/tables/code/equations/diagrams),
-  fixing slide formatting, adding new sections, adjusting page numbers,
-  styling individual tables, debugging Marp theme issues.
-  DO NOT USE FOR: general Marp questions unrelated to BUAA theme;
-  PPTX generation via PowerPoint; non-Marp slide frameworks.
-license: MIT
+  Self-contained v3: all layout templates inlined, zero file references, pure template-driven.
+  Use when user asks for PPT/slides/presentation with BUAA/北航 theme,
+  or mentions Marp, buaa-css, academic presentation, thesis defense.
+  Supports 6 color themes (blue/red/gold/dark/green/purple) and 11 layout patterns (A-K).
 metadata:
-  author: BUAA
-  version: "2.0.0"
-  theme: buaa
-  slide-size: "1366x768"
-  primary-color: "#004F9E"
+  version: "3.1.0"
+compatibility: Designed for Trae/Cursor/VSCode with Marp. Requires themes/buaa.css.
 ---
 
-# BUAA Marp PPT 技能
+# BUAA Marp PPT Skill
 
-为北京航空航天大学主题的 Marp 学术演示文稿提供创建、编辑和美化能力。
+> 自包含设计：所有页面骨架和布局模板均已内置于本文档或 references/。仅需提供一份大纲 `.md` 文件即可生成完整 PPT。
 
-## ⚠️ 前置检查清单
-
-生成 PPT 前逐项确认：
-
-| # | 检查项 | 详情 |
-|---|--------|------|
-| 1 | 图注用 `.hm-cap` | 禁止 Markdown 斜体或 `.img-caption` |
-| 2 | `<img>` 前后各空行 | 防止被 `<p>` 包裹 |
-| 3 | 加粗用 `<strong>` | `<div>` 内 `**text**` 不被 Marp 解析 |
-| 4 | 禁止 `<footer>` | 改用 `<div class="footer-bar">` |
-| 5 | 禁止内容中 `---` | 改用 `<hr>` |
-| 6 | `<img>` 不设 class/style | Marp 会剥离，改用父 div + CSS |
-| 7 | `.chapter-body` 恰好一个对齐类 | `layout-center` / `layout-flow` / `layout-space` / `layout-between` |
-| 8 | 表格在 `.layout-center` 内 | 否则不居中 |
-| 9 | 仅 chapter/end 页有页码 | 封面/目录/过渡页无页码 |
-| 10 | buaa.css 无 BOM | 修改后执行 Developer: Reload Window |
-
-> **关键：生成前先通读 `references/buaa-layout-styles.md`，所有内容页必须从 8 种布局模式中选择。**
-
-## Instructions
-
-### Step 1: 读取环境
-
-```powershell
-# 检查 buaa.css BOM
-$bytes = [System.IO.File]::ReadAllBytes("buaa-marp-template/buaa.css")
-if ($bytes[0] -eq 239) { Write-Output "BOM detected!" }
-```
-
-读取 `buaa.css`、`presentation-template.md`（参考模板）和 `references/buaa-layout-styles.md`（布局模式）。
-
-### Step 2: 确定页面结构
-
-根据大纲确定每页的 page type（5 种）和 body layout（10 种模式，A~J）：
+## 页面结构
 
 ```
-封面(cover) → 目录(catalog) → 过渡(transition) → 正文(chapter)×N → ... → 结尾(end)
+封面(buaa-cover) → 目录(buaa-catalog) → 过渡(buaa-transition) → 正文(buaa-chapter)×N → 结尾(buaa-end)
 ```
 
-正文页布局从 [10 种布局模式](references/buaa-layout-styles.md) 中选择。
+**页码规则**：封面/目录/过渡页无页码；正文从1递增；结尾页有页码。
 
-#### 图文自动生成触发语法
+**编号层级**：单页→数字(如`1`)；≥2页→X.Y；子节→X.Y.Z；最多3级禁四级。
 
-当大纲中使用**自然语言缩进格式**描述图表时，自动生成对应图表：
+---
 
-**流程图触发：**
-```
-流程图（纵向）：
-  → 步骤1
-  → 步骤2
-  → 步骤3
-```
-- `流程图` 独占一行 + 后续缩进 `→` 行 → 触发生成
-- `（纵向）`/默认：垂直排列（`.flow-chart`），箭头 `arr-solid-down`
-- `（横向）`：水平排列，箭头 `arr-solid-right`
-- 每行 `→` 开头；步骤数 3~9 个；>5 步时缩小 `--fc-font-size`
-- 步骤文本含 `→` 时用 `\→` 转义
-- 兼容旧格式：`流程图：A→B→C`（单行退化为纵向）
+## 16 条硬约束
 
-**系统框图触发：**
-```
-系统框图：
-  center: 枢纽节点名
-  left: 节点A → 节点B → 枢纽节点名
-  right: 节点C → 枢纽节点名
-  bottom: 节点D → 节点E → 枢纽节点名
-  top: 枢纽节点名 → 节点F
-```
-- `center:` 声明枢纽（必填，渲染为 `.bd-hub` 深蓝填充）
-- **链中保留 Hub**：方向行写出完整链路，枢纽出现在链尾或链首
-- **Hub 位置决定箭头方向**：Hub 在末尾 → 向心（箭头指向中心）；Hub 在开头 → 离心（箭头从中心出发）
-- **位置决定链排列**：`left`/`right` → 横向 flex row；`top`/`bottom` → 纵向 flex column
-- 方向行可选（`left`/`right`/`top`/`bottom`），链内 `→` 分隔
-- 兼容旧格式：`系统框图关系：` + 方向标注行；`bottom（纵向）` 等旧标注自动忽略
+### 致命级（违反即崩溃）
 
-**正文区分规则：**
-- `流程图`/`系统框图` 独占一行 + 后续缩进 `→` 行 → **触发图表**
-- 同行后有正文（如 `流程图：这是我们系统的...`）→ **不触发**，视为普通文本
-- 箭头默认 `arr-solid` 样式，scoped 中可切换 `arr-outline` / `arr-line`
-- 节点文本过长（>30字 flowchart / >15字 block-diagram）时自动缩小字号
+| # | 规则 |
+|:---:|------|
+| 1 | `<style scoped>` 放在 `buaa-chapter__badge` 之前，绝不可放在 `page-num` 后面 |
+| 2 | `.buaa-text-block` 内禁止 `<p>` 标签。裸写文字，Marp 自动生成 `<p>`（支持 `$...$`） |
+| 3 | 目录 `ul` 必须带完整 inline style（见下方骨架模板） |
+| 4 | 公式 `$...$` 只能在裸文本段落中。`<li>`/`<td>`/`.buaa-hm-cap` 内用 `<i>x</i><sub>1</sub>` 替代 |
+| 5 | 图注仅在大纲明确标注"图注："时添加。不自行为图片编造 `.buaa-hm-cap` |
+| 6 | `buaa-block-diagram` 中 Hub 只在 `center` 出现一次，链中不重复渲染 |
+| 7 | 封面必须有 `buaa-cover__date` |
 
-### Step 3: 空间预评估 ⚠️ 必须执行（逐页不可跳过）
+### 严重级（影响正确性）
 
-`.chapter-body` 可视区域：**宽 1246px × 高 634px**（1366×768 减去 60px 左右边距、80px 上边距、54px 下边距）。
+| # | 规则 |
+|:---:|------|
+| 8 | 大纲已有标题 → 严格沿用，一字不改。AI 不得修改、提炼或"优化" |
+| 9 | 同一编号多页 → 自动细化为 X.Y.Z（如 1.4 连续3页 → 1.4.1 / 1.4.2 / 1.4.3） |
+| 10 | `.adj-*` 仅作为 CSS 注释占位，不在 HTML 元素上激活（class 选择器在 scoped 中 specificity 常低于全局规则） |
+| 11 | 加粗用 `<strong>`，禁止 `**text**` |
+| 16 | Scoped 样式必须用 `section { --var: val; }` 注入 CSS 变量。禁止直接写选择器覆盖（全局 `section.buaa-chapter xxx` specificity 更高，必定无效） |
 
-#### 各布局空间预算
+### 注意级（影响质量）
 
-| 布局 | 文字区可用 | 图片区可用 | 关键约束 |
-|------|:---:|:---:|------|
-| split-2（50:50） | ~603px 宽 × ~580px 高 | ~603px 宽 × ~500px 高 | 每列宽 ~600px，列间 20px 间距 |
-| split-right（68:32） | ~827px 宽 × ~580px 高 | ~379px 宽 × ~500px 高 | 图片在 379px 下是否可辨？ |
-| split-tb（文上图下） | 全宽 × 自适应高 | 全宽 × (580px - 文字高) | 文字高 + img max-h + 图注 ≤ 580px |
-| layout-flow（纯文字） | 全宽 × ~580px 高 | — | 条目数 × 字号 × 行距 ≤ 520px |
-| layout-center（居中） | 全宽 × ~580px 高 | — | 表格行数 × 44px ≤ 400px |
+| # | 规则 |
+|:---:|------|
+| 12 | 图片：`<div class="buaa-hm-fig">` → 空行 → `<img src="...">` → 空行 → `</div>`（前后空行防 `<p>` 包裹） |
+| 13 | 禁止：`<footer>`、内容中用 `---`、`<img class/style>` |
+| 14 | 标题层级：`#`仅用于文件总标题；`##`仅用于`Slide N:`分页标识；`###`为正文主标题；限三级（X/X.Y/X.Y.Z） |
+| 15 | 序号与标题分离：大纲`###`中的编号提取填入 badge；`##`标题栏中不得出现序号 |
 
-#### 溢出快速判定
+---
 
-| 检查项 | 公式 | 安全阈值 | 超标处理 |
-|--------|------|:---:|------|
-| 列表条目总高 | `条目数 × (字号 × 行距 + item-gap)` | ≤ 520px | 缩小字号/行距，仍超标则拆页 |
-| 散文段落高 | `估算行数 × 字号 × 行距` | ≤ 500px | 缩小 --text-p-size |
-| 图片+图注 | `max-height + 30px(图注)` | ≤ 分配区高度 | 减小 max-height 或切换布局 |
-| 表格行数 | `行数 × 44px + 表头 48px` | ≤ 400px | 缩小表格字号至 18~20px |
-| 双列每列宽 | `最长条目字数 × 50%字号` | ≤ 列宽 - 40px | 缩小字号或换更短表述 |
-| 流程图节点数 | `节点数 × (52px + 箭头 14px)` | ≤ 550px | 缩小 --fc-font-size 或 --fc-min-width |
-| 框图节点总数 | `(2 + 节点数) × 60px` | ≤ 500px | 缩小 --bd-node-font-size |
+## 页面骨架模板
 
-**处理优先级**：① 调 CSS 变量（字号/行距）→ ② 调图片 max-height → ③ 拆页/切换布局模式。
-
-**每页生成后必须附带 `/* === 文本密度调节 === */` scoped 块**，供后续手动微调。
-
-### Step 4: 生成正文页
-
-每页使用标准骨架：
+### 封面 (buaa-cover)
 
 ```html
-<!-- _class: chapter -->
-<div class="chapter-badge"><span>X.Y</span></div>
-## 主标题——副标题
-<div class="chapter-body layout-xxx">
-  <!-- 从 10 种布局模式中选择一种 -->
-</div>
-<div class="footer-bar"></div>
-<div class="page-num">N</div>
+<!-- _class: buaa-cover -->
+<img class="buaa-cover__logo" src="./assets/logo.png">
+# {主标题}
+## {副标题，≤20字；无副标题则不写此行}
+<div class="buaa-cover__presenter">汇报人：{姓名}</div>
+<div class="buaa-cover__date">{日期}</div>
+<div class="buaa-cover__decor">BEIHANG UNIVERSITY</div>
 ```
 
-> **生成系统框图（模式 J）时**：必须参照 [`references/buaa-block-diagram-example.md`](references/buaa-block-diagram-example.md) 中的完整规范——包括 CSS 变量体系、`a-*`/`n-*` 类命名约定、终端箭头位置规则、间距变量等。该样例以中心枢纽 + 四向设备链为典型布局参考。
-
-### Step 5: 应用格式化规则
-
-- **加粗** ⚠️: `<strong>text</strong>`（禁止 `**text**`）
-- **图注** ⚠️: `<div class="hm-cap">text</div>`（禁止其他样式）
-- **图片**: `hm-fig` 容器 + `<img>` 前后空行
-- **目录**: `ul { left: 730px }` 不设 width，`gap: 28px`，`li { font-size: 24px }`
-- **副标题** ⚠️: 若大纲中未说明副标题，则 `##` 标题中不加 `——副标题`，仅保留主标题
-- **长文本密度调节** ⚠️: **每个 chapter slide 必须附带文本密度调节块**。首选 CSS 变量方式（简洁通用），仅当需逐元素精细控制时用逐元素规则。**禁止**通过修改 `buaa.css` 来调节
-- **重要图片放大** ⚠️: 图片需要放大时，在 scoped 块中加 `.hm-fig img { max-height: XXXpx !important; }`，不改 `buaa.css`
-- **注释规范** ⚠️: CSS 注释放在被描述代码的**上一行**，禁止行尾注释
-- **元素调整 class** ⚠️: 生成每个 chapter 页时，正文元素必须加独立调整 class（`.adj-txt`/`.adj-list`/`.adj-img`/`.adj-tbl`/`.adj-callout`），并在 scoped CSS 中附带注释掉的调整块。参照 `buaa-block-diagram-example.md` 第十一章
-
-### CSS 变量钩子（buaa.css 已内置，覆盖所有文本元素）
-
-| 变量名 | 默认值 | 控制范围 | 常用覆写值 |
-|--------|:---:|------|:---:|
-| `--text-size` | 24px | `li`、`.callout` 字号 | 22px（列表为主）/ 19px（密集双列） |
-| `--text-line-height` | 1.8 | `ol`/`ul`/`li`/`.callout` 行距 | 2~3（列表）/ 2.4（密集双列） |
-| `--text-item-gap` | 8px | `li` 条目间距 | 4~6px（密集）/ 8~16px（松散） |
-| `--text-p-size` | 26px | `p`、`.text-block`、split 容器裸文字 字号 | 26px（标准）/ 28px（短文字）/ 24px（密集） |
-| `--text-p-line-height` | 1.7 | `p`、`.text-block`、split 容器裸文字 行距 | 1.5~1.7（中等）/ 2（短文字+大图）/ 1.5（密集） |
-
-**首选模板（每个 chapter slide 都要有，参数值按排版参数速查表选取）：**
+### 目录 (buaa-catalog) — ⚠️ inline style 不可省略
 
 ```html
+<!-- _class: buaa-catalog -->
 <style scoped>
-/* === 图片尺寸 ===（有图时必写） */
-/* 图片最大高度 */
-/* .hm-fig img { max-height: XXXpx !important; } */
-
-/* === 文本密度调节 === 覆写 CSS 变量即可，无需逐元素写规则 */
-section {
-  --text-size: 22px;
-  --text-line-height: 2;
-  --text-item-gap: 6px;
-  --text-p-size: 26px;
-  --text-p-line-height: 1.7;
-}
-
-/* === 图文间距 ===（仅 split-tb 布局） */
-/* 文字与图片之间的间距 */
-/* .split-tb { gap: 1px; } */
-
-/* 以下为逐元素调整占位块（注释掉，按需取消注释） */
-/* 文本块：字号、行距、颜色 */
-/* .adj-txt { font-size: 24px; line-height: 1.8; color: #333; } */
-/* 列表：字号、行距 */
-/* .adj-list { font-size: 22px; line-height: 2; } */
-/* 图片：最大高度、边距 */
-/* .adj-img { max-height: 480px !important; margin: 10px 0; } */
-/* 表格：字号 */
-/* .adj-tbl { font-size: 22px; } */
-/* callout：字号、行距、内边距 */
-/* .adj-callout { font-size: 22px; line-height: 1.8; padding: 14px 24px; } */
+ul { left: 730px !important; display: flex !important; flex-direction: column !important; gap: 28px !important; }
+li { font-size: 24px !important; margin-bottom: 0 !important; }
 </style>
+<div class="buaa-catalog__title">目录</div>
+<div class="buaa-catalog__line"></div>
+<div class="buaa-catalog__eng">Contents</div>
+<ul style="position:absolute;left:730px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:28px;list-style:none;z-index:2;padding:0;margin:0;">
+  <li style="font-size:24px;margin-bottom:0;display:flex;align-items:center;color:#333;"><span class="buaa-catalog__num">{序号}</span> {章节标题}</li>
+</ul>
 ```
 
-### Step 6: 编号
+### 过渡 (buaa-transition)
 
-- **章节编号**: 该章仅 1 页正文 → 单数字；≥2 页 → X.Y 格式；子节使用 X.Y.Z 格式
-- **编号层级**: 章节编号最多 3 级（如 `1.1.1`），禁止更深层级（如 `1.1.1.1`）
-- **页码**: 封面/目录/过渡无页码，正文从 1 开始连续，结尾页最后
-
----
-
-## 布局模式速查
-
-> 完整规范见 [`references/buaa-layout-styles.md`](references/buaa-layout-styles.md)
-
-| 模式 | 组件 | 适用场景 |
-|------|------|----------|
-| A 文左图右 | `split-2` + `hm-fig` | ⭐ **图文默认布局**：散文段落 / bullet 列表（≤5条）/ 任意图片 |
-| B 文宽图窄 | `split-right` + `hm-fig` | ⚠️ **最后手段**：仅当 bullet 列表 >5 条、多条 >60 字、图片为辅助示意图 |
-| C 三卡+图廊 | `card-grid card-3` + `img-gallery gal-3` | 3 概念并列 + 3 张图 |
-| D 三卡+单图 | `card-grid card-3` + `hm-fig` | 3 方法对比 + 总结图 |
-| E 三卡+双图 | `card-grid card-3` + `img-pair` + `hm-cap` | 3 趋势 + 2 张图（各有图注） |
-| F 时间轴 | `timeline` + `callout` | 5 里程碑 + 总结句 |
-| G 图标总结 | `split-right` + `icon-list` + `hm-fig` | 4 条总结 + 展望图 |
-| H 双栏对比 | `split-2 split-top` + `callout` | 两类并列内容（如通用 vs 硬件），各 3~5 条目 + 底部总结句 |
-| I 流程图 | `flow-chart` + `fc-node` + `arr-solid-down` | 3~9 个串行步骤，大纲以"流程图"缩进格式标注 |
-| J 系统框图 | `block-diagram` + `bd-hub` + `bd-chain` + `bd-node` | 中心枢纽 + 四向节点链，大纲以"系统框图"缩进格式标注 |
-
-### ⚠️ 图文布局决策铁律（必读）
-
-> 经验证：split-2 可覆盖绝大多数图文并排场景，split-tb 专用于技术大图，**split-right 仅在极端条件下使用**。
-
-#### 第一铁律：split-2 是图文左右并排的唯一默认布局
-
-**散文段落 + 图 → split-2（永远）。散文在 50% 列宽自然换行即可，不需要 68% 宽列。**
-
-**bullet 列表 + 图 → split-2（首选）。优先通过缩小字号（22→20→19px）解决溢出，而非切换布局。**
-
-#### 第二铁律：split-right 仅限以下 ALL 条件同时满足
-
-1. 内容是 bullet 列表（不是散文）
-2. 条目 ≥4 条，多条 >60 字
-3. 图片是辅助示意图（在 32% 宽度下仍可辨）
-4. 已尝试 split-2 + 字号降至 19px 仍溢出
-
-#### 第三铁律：split-tb 仅用于"图需全宽展示细节"
-
-| 图片类型 | 文字上限 | 典型场景 |
-|----------|:---:|------|
-| 技术原理图（含标注/箭头/多组件） | ≤180 字 | 电路图、测试系统框图 |
-| 数据曲线图（含多曲线/坐标轴） | ≤150 字 | I-V 特性曲线、时域波形 |
-| 流程图（非 I/J 模式生成） | ≤120 字 | 系统工作流 |
-
-**照片/渲染图/封面图 → 不用 split-tb，用 split-2（50% 宽足够）。**
-
-#### 横竖排版决策矩阵
-
+```html
+<!-- _class: buaa-transition -->
+<div class="buaa-transition__num">{章节号，如 01}</div>
+# {中文标题}
+## {英文标题}
 ```
-有文字 + 有图片 →
-├─ 图片是照片/渲染图？ → split-2（无条件）
-├─ 图片是技术原理图/曲线图/框图？
-│   ├─ 文字 ≤ 180 字 → split-tb
-│   └─ 文字 > 180 字 → split-2
-├─ 文字是散文段落？ → split-2（无条件）
-├─ 文字是 bullet 列表？
-│   ├─ ≤3条, 每条≤40字 → split-2
-│   ├─ 3~5条, 部分>40字 → split-2 + 字号降至 20px
-│   ├─ >5条, 多条>60字 → 优先拆页；不拆则 split-2 + 字号降至 19px
-│   └─ >5条, 多条>80字, 图辅助 → split-right（最后手段）
-└─ 只有文字（无图）？ → layout-flow 或 layout-center
+
+### 正文通用骨架 (buaa-chapter) — ⚠️ `<style scoped>` 在 badge 之前
+
+```html
+<!-- _class: buaa-chapter -->
+<style scoped>
+/* === 图片尺寸 === */                          ← 有图时必写
+/* .buaa-hm-fig img { max-height: XXXpx !important; } */
+/* === 文本密度调节 === */
+section { --text-p-size: XXpx; --text-p-line-height: X.X; }
+/* === 图片最大高度 === */
+/* .adj-img { max-height: XXXpx !important; } */
+/* === 文本块：字号、行距 === */
+/* .adj-txt { font-size: XXpx; line-height: X.X; } */
+</style>
+<div class="buaa-chapter__badge"><span>{编号}</span></div>
+## {主标题}——{副标题}          ← 不写编号，编号已在 badge
+<div class="buaa-chapter__body {布局类名}">
+  <!-- 正文内容，使用 references/layout-templates.md 中的布局模板 -->
+</div>
+<div class="buaa-chapter__footer"></div>
+<div class="buaa-chapter__page-num">{页码}</div>
+```
+
+### 结尾 (buaa-end)
+
+```html
+<!-- _class: buaa-end -->
+<div class="buaa-chapter__badge"><span>结语</span></div>
+# 感谢您的观看与收听，敬请批评指正
+## Q &amp; A
+<div class="buaa-chapter__footer"></div>
+<div class="buaa-chapter__page-num">{N}</div>
 ```
 
 ---
 
-## 常见陷阱
+## 布局决策树
 
-| 错误 | 正确 | 原因 |
-|------|------|------|
-| `<footer>` | `<div class="footer-bar">` | Marp 不白名单 footer |
-| 幻灯片内 `---` | `<hr>` | `---` 会分割幻灯片 |
-| `<img class="x">` | 父 div class + CSS `.x img` | Marp 剥离 img 的 class/style |
-| `**text**` 在 div 内 | `<strong>text</strong>` | HTML 块内不解析 Markdown |
-| `*图注*` 或 `.img-caption` | `.hm-cap` | 图注必须统一 hm-cap 样式 |
-| `width:100%` + padding | + `box-sizing:border-box` | 总宽溢出被 overflow 裁掉 |
-| 目录 `left:563px` | `left:730px` | 错误约束推导，正确为右半区居中 |
-| 表格在 `layout-flow` 中 | 用 `layout-center` + `.text-block` 包裹文本 | `<style scoped>` 对 Marp 表格无效，必须靠 `.layout-center table` 规则 |
-| 修改 `buaa.css` 调字号/行距 | 在 `.md` 中加 `<style scoped>`（`/* === 文本密度调节 === */`）| 用户偏好：样式微调始终在 `.md` 文件中完成，不改全局 CSS |
+> 完整 HTML 模板见 [references/layout-templates.md](references/layout-templates.md)。按内容类型选择：
+
+| 内容特征 | 推荐布局 | 说明 |
+|----------|----------|------|
+| 文字+照片/渲染图 | **A** (split-2) | 文左图右，默认布局 |
+| 文字≤180字+技术大图 | **F** (split-tb) | 文上图下，全宽展示细节 |
+| 文字>180字+技术图 | **A** (split-2) | 回退到文左图右 |
+| 双图并排+各自图注 | **I** (img-pair) | 两张图独立图注 |
+| 嵌套列表(ol>ul) | **B** (layout-flow) | 主条目≤4个+callout总结 |
+| 平铺列表(ul/ol>5条) | **B** (layout-flow) | 纯列表流式布局 |
+| 散文段落/公式 | **C** (layout-center) | 居中混排 |
+| strong标题+子列表混合 | **J** (layout-flow) | 多组strong+ul |
+| 双栏对比(各3~5条) | **D** (split-2+top) | 两列ol+底部callout |
+| 居中混排含列表+表格 | **E** (layout-center) | 标题+ul+table+图注 |
+| **窄表格(≤3列)** | **C-split** (split-2 top) | ⚠️ 必须分栏，居中会溢出滚动条 |
+| 宽表格(≥4列)/纯表格 | **C** (layout-center) | 居中即可 |
+| 流程图(→步骤) | **G** (flow-chart) | 步骤3~9个，line-long箭头 |
+| 系统框图(center/left/right...) | **H** (block-diagram) | Hub仅出现一次 |
+| 纯大图(无文字) | **K** (hm-fig) | 全屏图片 |
 
 ---
 
-## 目录页精确定位
+## Scoped 样式覆盖指南
+
+> **核心原则**：scoped 中直接写选择器大概率无效，必须通过 `section {}` 注入 CSS 变量。
+
+### 为什么失效
+
+Marp 的 `<style scoped>` 追加 `[data-marpit-scope]` 属性选择器。全局 `section.buaa-chapter pre` specificity=(0,1,2) ≥ scoped `pre`→(0,1,2)，且 Marp 重处理全局 CSS 导致后加载的全局规则覆盖 scoped。
+
+### ✅ 有效写法（通过 CSS 变量继承穿透 specificity）
+
+| 写法 | 用途 |
+|------|------|
+| `section { --text-p-size: 20px; }` | 段落字号 |
+| `section { --text-size: 20px; }` | 列表字号 |
+| `section { --text-line-height: 2; }` | 列表行高 |
+| `section { --text-item-gap: 6px; }` | 列表条目间距 |
+| `section { --pre-font-size: 22px; }` | 代码块字号 |
+| `section { --pre-font-family: "Fira Code", monospace; }` | 代码块字体 |
+| `section { --pre-color: #333; }` | 代码块颜色 |
+| `section { --pre-code-color: #333; }` | code元素颜色 |
+| `section { --pre-line-height: 1.6; }` | 代码块行高 |
+| `section { --code-font-size: 1em; }` | 行内代码字号 |
+| `section { --code-color: var(--buaa-primary); }` | 行内代码颜色 |
+| scoped `.buaa-flow-chart__arrow { margin: }` | 流程图箭头间距(specificity 0,2,1 > 全局 0,1,0) |
+
+### ❌ 无效写法
+
+```css
+/* 以下全部无效 — specificity 不足或 !important 被 Marp 处理顺序覆盖 */
+pre { font-size: 22px; }
+pre, pre code { font-size: 22px !important; }
+ol { font-size: 20px; }
+ol li { margin-bottom: 6px; }
+.adj-ol { font-size: 20px; }      /* class 未在 HTML 上激活 */
+.adj-code { font-size: 40px; }     /* <pre> 无此 class */
+```
+
+---
+
+## 文本密度参数速查
+
+| 内容形态 | --text-p-size | 行高 | 图片 max-height |
+|----------|:---:|:---:|:---:|
+| 散文（无图） | 26px | 1.7 | — |
+| 散文+大图 split-2 | 26px | 2 | 480-520px |
+| 短文字(≤100字)+技术图 split-tb | 28px | 2 | 300-350px |
+| 中等文字(100~180字)+图 split-tb | 28px | 1.5 | 250-280px |
+| 嵌套列表 ol>ul | 22px | 3(ol)/2(ul) | — |
+| 平铺列表 ≤4条 | 24px | 3.25 | — |
+| 双列密集对比 split-top | 19px | 2.4 | — |
+
+### 代码块专用变量
+
+| 变量 | 默认值 | 示例用法 |
+|------|--------|----------|
+| `--pre-font-size` | 18px | `22px` / `1.2rem` / `120%` |
+| `--pre-font-family` | Consolas, Courier New, monospace | `"Fira Code", "JetBrains Mono", monospace` |
+| `--pre-color` | #333 | `#2d3436` / `rgb(45,52,54)` |
+| `--pre-code-color` | #333 | 与 --pre-color 保持一致 |
+| `--pre-line-height` | 1.6 | — |
+| `--code-font-size` | 0.9em | `1em`(等大) / `0.85em`(缩小15%) |
+| `--code-color` | var(--buaa-primary) | — |
+
+---
+
+## 多主题色系
+
+切换方式：修改 `.md` 文件 YAML 头的 `theme` 字段。
+
+| 主题名 | 主色 | 主色深 | 适用场景 |
+|--------|:----:|:----:|------|
+| `buaa` | #004F9E | #003D7A | 北航蓝（默认），日常汇报/答辩 |
+| `buaa-red` | #C41230 | #9A0E24 | 北航红，庆典/党建/竞赛 |
+| `buaa-gold` | #C49B2C | #9A7A22 | 北航金，学术典礼/荣誉表彰 |
+| `buaa-dark` | #1B2D55 | #111D38 | 深空蓝，科技感/深色场景 |
+| `buaa-green` | #2E7D32 | #1E5A22 | 银杏绿，自然/环保/校园主题 |
+| `buaa-purple` | #5C2D91 | #3F1E64 | 星空紫，创新/探索/太空主题 |
+
+CSS 文件位于 `themes/` 目录，以 `buaa.css` 为蓝本通过 `@import-theme 'buaa'` 继承。注册新主题需修改 `.vscode/settings.json` 的 `markdown.marp.themes` 数组。
+
+---
+
+## 生成流程
 
 ```
-PPT 宽度 1366px，中心 683px
-条目块在右半区（683→1366px）中自然居中
-ul { left: 730px }  ← 不设 width，块宽由内容自适应
-ul { display: flex; flex-direction: column; gap: 28px }
-li { font-size: 24px; margin-bottom: 0 }
+Step 0: 解析大纲标题层级
+   # → 文件总标题（仅一个）
+   ## → 分页标识 Slide N: {标签}
+   ### → 正文主标题 {编号} 主标题——副标题（编号提取到 badge）
+   #### → 同编号拆分子页标识（编号仍为三级）
+
+Step 1: 逐页分析 → {页面类型, 标题, 内容类型, 字数, 有无图片, 有无图注}
+
+Step 2: 按决策树选布局 (A-K / C-split)
+
+Step 3: 按模板生成：
+   ├─ <style scoped> 在 badge 前（CSS变量 + .adj-* 注释占位）
+   ├─ badge → ## 标题(无编号) → body(套用 layout-templates.md 模板) → footer → page-num
+   ├─ 文本块裸写不用<p>；公式 $...$ 在裸文本中
+   └─ 目录 ul 带 inline style；图片前后空行
+
+Step 4: 编号：大纲标题一字不改；同编号多页自动细化 X.Y.Z
+
+Step 5: 组装：封面 → 目录 → 过渡 → 正文×N → 过渡 → ... → 结尾
+
+Step 6: 命名输出文件：以 PPT 主题命名，不加「大纲」「outline」等后缀
+   例：大纲名为「BUAA_Marp_Template-outline.md」→ 生成「BUAA_Marp_Template.md」
 ```
 
-调整纵向间距：改 `gap` 值即可（20px 紧凑 / 28px 标准 / 36px 舒展）。
+---
 
-Marp 缓存 CSS → 需 **Developer: Reload Window**。若不生效 → inline style 兜底。
+## Markdown 语法可用范围
+
+| 上下文 | `$...$` | `**...**` | 替代方案 |
+|--------|:---:|:---:|------|
+| 裸文本段落 | ✅ | ✅ | 直接用 |
+| `<li>` / `<td>` / `.hm-cap` 内 | ❌ | ❌ | `<i>x</i><sub>1</sub>` / `<strong>` |
+| `##` 标题内 | ✅ | ✅ | 直接用 |
+| `<div>` 内纯文本（未嵌HTML标签） | ✅ | ✅ | 直接用 |
 
 ---
 
-## 表格
+## 布局模板详情
 
-- 表格居中**必须**放在 `.layout-center` 容器内（`.layout-center table` 规则将 `width:100%` 覆写为 `width:auto; margin:auto`）
-- `<style scoped>` 加 `!important` 对 Marp markdown 生成的 `<table>` 无效，不可依赖
-- **混合文本+表格的 slide**：用 `layout-center`，同时将文本段落包裹在 `.text-block`（`width:100%`）中保持左对齐；多个 `.text-block` 之间、`.text-block` 与表格之间用 `<br>` 分隔，保持呼吸感
-- 表头 `background: #004F9E; color: #fff`
-- 偶数行 `background: #f4f8fc`
-- 自定义：内联 `style="width:70%;font-size:18px"` 或 CSS class
+完整的 11 个布局模板（A-K + C-split）含完整 HTML/CSS 代码，详见：
 
----
+📎 **[references/layout-templates.md](references/layout-templates.md)**
 
-## Troubleshooting
-
-| 症状 | 原因 | 解决 |
-|------|------|------|
-| 主题无法识别 | buaa.css 有 UTF-8 BOM | PowerShell 去 BOM |
-| 图注变灰斜体 | 用了 `*text*` 或 `.img-caption` | 改用 `.hm-cap` |
-| 图片不居中 | `<img>` 被 `<p>` 包裹 | `<img>` 前后各加空行 |
-| 加粗显示星号 | `**text**` 在 `<div>` 内 | 改用 `<strong>` |
-| 目录贴右边缘 | `ul` 的 `left` 值错误 | 设为 `730px` |
-| 右侧内容被截断 | `width:100%` + padding 溢出 | 加 `box-sizing:border-box` |
-| 修改 buaa.css 不生效 | Marp 扩展缓存 | Developer: Reload Window |
-| 表格不居中 | 父容器不是 `layout-center` | 加 `layout-center` |
+生成时按决策树选定布局后，从该文件复制对应模板替换 `{...}` 占位符。

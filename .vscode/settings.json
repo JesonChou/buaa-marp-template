@@ -2,7 +2,12 @@
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",
     "markdown.marp.themes": [
-        "./buaa.css"
+        "./themes/buaa.css",
+        "./themes/buaa-red.css",
+        "./themes/buaa-gold.css",
+        "./themes/buaa-dark.css",
+        "./themes/buaa-purple.css",
+        "./themes/buaa-green.css"
     ],
     "markdown.validate.enabled": true
 }

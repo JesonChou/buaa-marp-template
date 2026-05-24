@@ -1,0 +1,15 @@
+/* @theme buaa-green */
+/* BUAA Green - 自然/环保/校园主题 */
+
+@import-theme 'buaa';
+
+:root {
+  --buaa-primary: #2E7D32;
+  --buaa-primary-rgb: 46, 125, 50;
+  --buaa-primary-dark: #1E5A22;
+  --buaa-primary-dark-rgb: 30, 90, 34;
+  --buaa-cover-dark: #1E5A22;
+  --buaa-cover-dark-rgb: 30, 90, 34;
+  --buaa-cover-mid: #266C2A;
+  --buaa-cover-mid-rgb: 38, 108, 42;
+}

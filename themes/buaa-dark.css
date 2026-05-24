@@ -1,0 +1,15 @@
+/* @theme buaa-dark */
+/* Deep Space Blue - 科技感/深色场景 */
+
+@import-theme 'buaa';
+
+:root {
+  --buaa-primary: #1B2D55;
+  --buaa-primary-rgb: 27, 45, 85;
+  --buaa-primary-dark: #111D38;
+  --buaa-primary-dark-rgb: 17, 29, 56;
+  --buaa-cover-dark: #111D38;
+  --buaa-cover-dark-rgb: 17, 29, 56;
+  --buaa-cover-mid: #162547;
+  --buaa-cover-mid-rgb: 22, 37, 71;
+}
