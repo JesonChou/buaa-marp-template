@@ -12,16 +12,24 @@
 <!-- _class: buaa-chapter -->
 
 <style scoped>
-/* === 图片尺寸 === */
-/* 图片最大高度 */
-.buaa-hm-fig img { max-height: {480-520}px !important; }
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: {80-95}% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateY(0px);
+}
 /* === 文本密度调节 === */
 section {
   --text-p-size: 26px;
   --text-p-line-height: 2;
 }
-/* 图片：最大高度 */
-/* .adj-img { max-height: {480-520}px !important; } */
+/* 图片缩放比例、垂直偏移 */
+/* .buaa-hm-fig img { max-width: 90% !important; transform: translateY(-55px); } */
 </style>
 
 <div class="buaa-chapter__badge"><span>{编号}</span></div>
@@ -54,9 +62,9 @@ section {
 
 ---
 
-## 布局 B：纯文字嵌套列表 (buaa-layout--flow + ol/ul)
+## 布局 B：纯文字嵌套列表 (buaa-layout--flow + 原生 Markdown 列表)
 
-适用：ol 主条目内含 ul 子条目，末尾有 buaa-callout 总结。
+适用：ol 主条目内含 ul 子条目，末尾有 buaa-callout 总结。**使用 Markdown 原生列表语法**，`$...$` 公式和 `**加粗**` 均正常生效。
 
 ```html
 <!-- _class: buaa-chapter -->
@@ -85,21 +93,18 @@ ol ul li { font-size: 21px; margin-bottom: 3px; }
 
 <div class="buaa-chapter__body buaa-layout--flow">
 
-<ol>
-  <li><strong>{主条目1}</strong>
-    <ul>
-      <li><strong>{子条目名}：</strong>{描述}</li>
-      <li><strong>{子条目名}：</strong>{描述}</li>
-      <li><strong>{子条目名}：</strong>{描述}</li>
-    </ul>
-  </li>
-  <li><strong>{主条目2}</strong></li>
-  <li><strong>{主条目3}</strong></li>
-  <li><strong>{主条目4}</strong></li>
-</ol>
+{散文段落 — 裸文字，支持 $...$ 公式}
+
+1. **{主条目1}**
+   - **{子条目名}：**{描述，支持 $...$ 公式}
+   - **{子条目名}：**{描述}
+2. **{主条目2}**
+3. **{主条目3}**
+
+{散文段落或表格，列表与段落间保留空行}
 
 <div class="buaa-callout">
-<strong>总结：</strong>{总结语}
+{总结语，公式用 &lt;i&gt;x&lt;/i&gt;&lt;sub&gt;1&lt;/sub&gt; 替代}
 </div>
 
 </div>
@@ -218,7 +223,7 @@ p { font-size: var(--text-p-size); }
 
 ## 布局 D：双栏对比 (buaa-split--2 + buaa-split--top + buaa-callout)
 
-适用：两类并列内容，各 3~5 个条目，末尾一句总结。
+适用：两类并列内容，各 3~5 个条目，末尾一句总结。⚠️ 列表嵌入 `buaa-split--2 > div` 内部，只能使用 HTML `<ol><li>` + `<strong>`，公式用 `<i>x</i><sub>1</sub>` 替代。
 
 ```html
 <!-- _class: buaa-chapter -->
@@ -276,7 +281,7 @@ p { font-size: var(--text-p-size); }
   <li><strong>{条目名}：</strong>{描述}</li>
   <li><strong>{条目名}：</strong>{描述}</li>
   <li><strong>{条目名}：</strong>{描述}</li>
-  <li><strong>{条目名}。</strong></li>
+  <li><strong>{条目名}</strong></li>
 </ol>
 
 </div>
@@ -310,7 +315,7 @@ p { font-size: var(--text-p-size); }
 
 ## 布局 E：居中混排含列表 (buaa-layout--center + .buaa-text-block + ul + table)
 
-适用：目标说明 + bullet列表 + 表格 + 图注。
+适用：目标说明 + bullet列表 + 表格 + 图注。⚠️ 列表嵌入 `.buaa-text-block` 内部时只能使用 HTML `<ul><li>` + `<strong>`，公式用 `<i>x</i><sub>1</sub>` 替代。
 
 ```html
 <!-- _class: buaa-chapter -->
@@ -368,9 +373,17 @@ p { font-size: var(--text-p-size); }
 <!-- _class: buaa-chapter -->
 
 <style scoped>
-/* === 图片尺寸 === */
-/* 图片最大高度 */
-.buaa-hm-fig img { max-height: {250-350}px !important; }
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: {80-95}% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateY(0px);
+}
 /* === 文本密度调节 === */
 section {
   --text-p-size: 28px;
@@ -379,8 +392,8 @@ section {
 /* === 图文间距 === */
 /* 文字与图片之间的间距 */
 .buaa-split-tb { gap: 1px; }
-/* 图片：最大高度 */
-/* .adj-img { max-height: {250-350}px !important; } */
+/* 图片缩放比例、垂直偏移 */
+/* .buaa-hm-fig img { max-width: 90% !important; transform: translateY(-55px); } */
 </style>
 
 <div class="buaa-chapter__badge"><span>{编号}</span></div>
@@ -634,9 +647,9 @@ p { font-size: 24px; line-height: 1.7; }
 
 ---
 
-## 布局 J：含 strong 标题的无序列表 (buaa-layout--flow + ul)
+## 布局 J：含 strong 标题的无序列表 (buaa-layout--flow + 原生 Markdown 列表)
 
-适用：strong 小标题 + 说明文字；多个 strong 块 + ul 子列表混合。
+适用：strong 小标题 + 说明文字；多个 strong 块 + ul 子列表混合。**使用 Markdown 原生列表**，`$...$` 和 `**text**` 正常生效。
 
 ```html
 <!-- _class: buaa-chapter -->
@@ -657,25 +670,21 @@ ul li { font-size: 22px; line-height: 2; margin-bottom: 6px; }
 
 <div class="buaa-chapter__body buaa-layout--flow">
 
-<strong>{小标题1}</strong>
+**{小标题1}**
 
-{说明段落 — 裸文字}
+{说明段落 — 裸文字，支持 $...$}
 
-<ul>
-  <li>{特点一}</li>
-  <li>{特点二}</li>
-  <li>{特点三}</li>
-</ul>
+- {特点一，支持 $...$ 公式}
+- {特点二}
+- {特点三}
 
-<strong>{小标题2}</strong>
+**{小标题2}**
 
 {说明段落}
 
-<ul>
-  <li>{特点一}</li>
-  <li>{特点二}</li>
-  <li>{特点三}</li>
-</ul>
+- {特点一}
+- {特点二}
+- {特点三}
 
 </div>
 
@@ -693,16 +702,23 @@ ul li { font-size: 22px; line-height: 2; margin-bottom: 6px; }
 <!-- _class: buaa-chapter -->
 
 <style scoped>
-/* === 图片尺寸 === */
-/* 图片最大高度 */
-.buaa-hm-fig img { max-height: 520px !important; }
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: {90-95}% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+}
 /* === 文本密度调节 === */
 section {
   --text-p-size: 26px;
   --text-p-line-height: 1.5;
 }
-/* 图片：最大高度 */
-/* .adj-img { max-height: 520px !important; } */
+/* 图片缩放比例 */
+/* .buaa-hm-fig img { max-width: 95% !important; } */
 </style>
 
 <div class="buaa-chapter__badge"><span>{编号}</span></div>
@@ -722,3 +738,61 @@ section {
 <div class="buaa-chapter__footer"></div>
 <div class="buaa-chapter__page-num">{N}</div>
 ```
+
+
+
+---
+
+## 附录：图片宽高比保持模式
+
+> 自 v3 起，所有含图片的布局（A / F / I / K）统一采用此 Grid 居中 + 双向约束模式，取代旧版固定 max-height 方案。
+
+### 为什么替换旧方案
+
+旧方案 `max-height: 480px` 强制限制图片高度，会导致宽高比与原文不一致的图片被拉伸或纵向截断。新方案用 `max-width` + `max-height` 的双向约束配合 `width/height: auto`，浏览器在可用空间内保持原始宽高比缩放。
+
+### 核心 CSS 模板
+
+```css
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: {80-95}% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateY(0px);
+}
+```
+
+### 参数速查
+
+| 参数 | 默认值 | 用途 | 调整场景 |
+|------|:---:|------|------|
+| `max-width` | 80% | 图片占容器宽度的最大比例 | 图片偏小时调大至 90-95% |
+| `max-height` | 100% | 图片占容器高度的最大比例 | 纵向太扁时减小（如 85%） |
+| `transform: translateY` | 0px | 垂直微调，负值上移 | 图片整体偏下时设置 -30~-60px |
+
+### 样式优先级
+
+本模式使用 `!important` 确保覆盖 `buaa.css` 全局主题的 `max-height` 默认约束。务必保持四个属性（`max-width`、`max-height`、`width: auto`、`height: auto`）同时存在且带 `!important`，缺失任一可能导致宽高比失真。
+
+### 实战示例（文左图右 + 表格曲线图）
+
+```css
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: 90% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateY(-55px);
+}
+```
+
+效果：图片占右侧列 90% 宽度，保持原始宽高比，在列内水平+垂直居中，向上偏移 55px 平衡视觉重心。

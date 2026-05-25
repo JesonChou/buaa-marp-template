@@ -35,30 +35,35 @@ compatibility: Designed for Trae/Cursor/VSCode with Marp. Requires themes/buaa.c
 |:---:|------|
 | 1 | `<style scoped>` 放在 `buaa-chapter__badge` 之前，绝不可放在 `page-num` 后面 |
 | 2 | `.buaa-text-block` 内禁止 `<p>` 标签。裸写文字，Marp 自动生成 `<p>`（支持 `$...$`） |
+| 2.1 | **列表生成规则**：遇到大纲中有序/无序列表时，<br>**✅ 优先**：Markdown 原生语法 `1. ` / `- `（当列表是 body 容器的直接子元素时）<br>**❌ 禁止**：在可用原生语法时却用 HTML `<ol><li>` / `<ul><li>` 包装<br>**⚠️ 例外**：列表嵌入在 `<div>` 内（如 `buaa-split--2 > div`、`.buaa-text-block`）时，Marp 无法解析原生语法，只能用 HTML `<li>` + `<strong>`，公式用 `<i>x</i><sub>1</sub>` |
 | 3 | 目录 `ul` 必须带完整 inline style（见下方骨架模板） |
-| 4 | 公式 `$...$` 只能在裸文本段落中。`<li>`/`<td>`/`.buaa-hm-cap` 内用 `<i>x</i><sub>1</sub>` 替代 |
+| 4 | 公式 `$...$` 在两类上下文中行为不同：<br>**✅ 可用**：裸文本段落、Markdown 原生列表（`1. ` / `- ` / 嵌套 `- `）、`##` 标题<br>**❌ 不可用**：HTML `<li>` 标签、`<td>` 表格单元格、`.buaa-hm-cap` 图注 → 需用 `<i>x</i><sub>1</sub>` 替代 |
 | 5 | 图注仅在大纲明确标注"图注："时添加。不自行为图片编造 `.buaa-hm-cap` |
-| 6 | `buaa-block-diagram` 中 Hub 只在 `center` 出现一次，链中不重复渲染 |
-| 7 | 封面必须有 `buaa-cover__date` |
+| 6 | 生成 `.buaa-hm-cap` 时，去掉大纲中 `**图注：**` 标记本身，只保留后续的纯文本内容 |
+| 7 | `buaa-block-diagram` 中 Hub 只在 `center` 出现一次，链中不重复渲染 |
+| 8 | 封面必须有 `buaa-cover__date` |
 
 ### 严重级（影响正确性）
 
 | # | 规则 |
 |:---:|------|
-| 8 | 大纲已有标题 → 严格沿用，一字不改。AI 不得修改、提炼或"优化" |
-| 9 | 同一编号多页 → 自动细化为 X.Y.Z（如 1.4 连续3页 → 1.4.1 / 1.4.2 / 1.4.3） |
-| 10 | `.adj-*` 仅作为 CSS 注释占位，不在 HTML 元素上激活（class 选择器在 scoped 中 specificity 常低于全局规则） |
-| 11 | 加粗用 `<strong>`，禁止 `**text**` |
-| 16 | Scoped 样式必须用 `section { --var: val; }` 注入 CSS 变量。禁止直接写选择器覆盖（全局 `section.buaa-chapter xxx` specificity 更高，必定无效） |
+| 9 | 大纲已有标题 → 严格沿用，一字不改。AI 不得修改、提炼或"优化" |
+| 10 | 同一编号多页 → 自动细化为 X.Y.Z（如 1.4 连续3页 → 1.4.1 / 1.4.2 / 1.4.3） |
+| 11 | `.adj-*` 仅作为 CSS 注释占位，不在 HTML 元素上激活（class 选择器在 scoped 中 specificity 常低于全局规则） |
+| 12 | 加粗：Markdown 原生列表和裸文本中 `**text**` ✅；HTML `<li>`/`<td>`/`.buaa-hm-cap` 中用 `<strong>` |
+| 17 | Scoped 样式必须用 `section { --var: val; }` 注入 CSS 变量。禁止直接写选择器覆盖（全局 `section.buaa-chapter xxx` specificity 更高，必定无效） |
 
 ### 注意级（影响质量）
 
 | # | 规则 |
 |:---:|------|
-| 12 | 图片：`<div class="buaa-hm-fig">` → 空行 → `<img src="...">` → 空行 → `</div>`（前后空行防 `<p>` 包裹） |
-| 13 | 禁止：`<footer>`、内容中用 `---`、`<img class/style>` |
-| 14 | 标题层级：`#`仅用于文件总标题；`##`仅用于`Slide N:`分页标识；`###`为正文主标题；限三级（X/X.Y/X.Y.Z） |
-| 15 | 序号与标题分离：大纲`###`中的编号提取填入 badge；`##`标题栏中不得出现序号 |
+| 13 | 图片：`<div class="buaa-hm-fig">` → 空行 → `<img src="...">` → 空行 → `</div>`（前后空行防 `<p>` 包裹） |
+| 14 | 禁止：`<footer>`、内容中用 `---`、`<img class/style>` |
+| 15 | 标题层级：`#`仅用于文件总标题；`##`仅用于`Slide N:`分页标识；`###`为正文主标题；限三级（X/X.Y/X.Y.Z） |
+| 16 | 序号与标题分离：大纲`###`中的编号提取填入 badge；`##`标题栏中不得出现序号 |
+| 18 | 图片下载：大纲指明图片 URL 时，必须下载至 `figures/` 目录，`.md` 中以相对路径 `./figures/xxx.png` 引用 |
+| 19 | 图注定位：图注 `<div class="buaa-hm-cap">` 必须紧跟其所解释的图片，与图片位于同一父容器内、放置在图片正下方。无论单图、双图还是混合布局，图注均通过父容器（`buaa-hm-fig` / `buaa-img-pair`）的 CSS 与图片保持居中对齐 |
+| 20 | 双图并排：仅使用 `buaa-img-pair` + `buaa-hm-cap` 组合，禁止使用 `buaa-img-gallery`（不兼容图注） |
 
 ---
 
@@ -143,14 +148,14 @@ section { --text-p-size: XXpx; --text-p-line-height: X.X; }
 
 | 内容特征 | 推荐布局 | 说明 |
 |----------|----------|------|
-| 文字+照片/渲染图 | **A** (split-2) | 文左图右，默认布局 |
-| 文字≤180字+技术大图 | **F** (split-tb) | 文上图下，全宽展示细节 |
+| 文字+照片/渲染图 | **A** (split-2) | 文左图右，图片默认 Grid 居中+双向约束保持宽高比 |
+| 文字≤180字+技术大图 | **F** (split-tb) | 文上图下，图片默认 Grid 居中+双向约束 |
 | 文字>180字+技术图 | **A** (split-2) | 回退到文左图右 |
 | 双图并排+各自图注 | **I** (img-pair) | 两张图独立图注 |
-| 嵌套列表(ol>ul) | **B** (layout-flow) | 主条目≤4个+callout总结 |
-| 平铺列表(ul/ol>5条) | **B** (layout-flow) | 纯列表流式布局 |
+| 嵌套列表(ol>ul) | **B** (layout-flow) | 主条目≤4个+callout总结，使用 Markdown 原生列表 |
+| 平铺列表(ul/ol>5条) | **B** (layout-flow) | 纯列表流式布局，使用 Markdown 原生列表 |
 | 散文段落/公式 | **C** (layout-center) | 居中混排 |
-| strong标题+子列表混合 | **J** (layout-flow) | 多组strong+ul |
+| strong标题+子列表混合 | **J** (layout-flow) | 多组strong+ul，使用 Markdown 原生列表 |
 | 双栏对比(各3~5条) | **D** (split-2+top) | 两列ol+底部callout |
 | 居中混排含列表+表格 | **E** (layout-center) | 标题+ul+table+图注 |
 | **窄表格(≤3列)** | **C-split** (split-2 top) | ⚠️ 必须分栏，居中会溢出滚动条 |
@@ -185,6 +190,7 @@ Marp 的 `<style scoped>` 追加 `[data-marpit-scope]` 属性选择器。全局 
 | `section { --code-font-size: 1em; }` | 行内代码字号 |
 | `section { --code-color: var(--buaa-primary); }` | 行内代码颜色 |
 | scoped `.buaa-flow-chart__arrow { margin: }` | 流程图箭头间距(specificity 0,2,1 > 全局 0,1,0) |
+| `.buaa-hm-fig { display: grid; place-items: center }` | 图片居中容器，配合 `max-width`/`max-height` 双向约束保持宽高比 |
 
 ### ❌ 无效写法
 
@@ -202,12 +208,12 @@ ol li { margin-bottom: 6px; }
 
 ## 文本密度参数速查
 
-| 内容形态 | --text-p-size | 行高 | 图片 max-height |
+| 内容形态 | --text-p-size | 行高 | 图片缩放 |
 |----------|:---:|:---:|:---:|
 | 散文（无图） | 26px | 1.7 | — |
-| 散文+大图 split-2 | 26px | 2 | 480-520px |
-| 短文字(≤100字)+技术图 split-tb | 28px | 2 | 300-350px |
-| 中等文字(100~180字)+图 split-tb | 28px | 1.5 | 250-280px |
+| 散文+大图 split-2 | 26px | 2 | max-width: 80-95% |
+| 短文字(≤100字)+技术图 split-tb | 28px | 2 | max-width: 80-90% |
+| 中等文字(100~180字)+图 split-tb | 28px | 1.5 | max-width: 80-90% |
 | 嵌套列表 ol>ul | 22px | 3(ol)/2(ul) | — |
 | 平铺列表 ≤4条 | 24px | 3.25 | — |
 | 双列密集对比 split-top | 19px | 2.4 | — |
@@ -228,18 +234,48 @@ ol li { margin-bottom: 6px; }
 
 ## 多主题色系
 
-切换方式：修改 `.md` 文件 YAML 头的 `theme` 字段。
+### 切换主题
 
-| 主题名 | 主色 | 主色深 | 适用场景 |
-|--------|:----:|:----:|------|
-| `buaa` | #004F9E | #003D7A | 北航蓝（默认），日常汇报/答辩 |
-| `buaa-red` | #C41230 | #9A0E24 | 北航红，庆典/党建/竞赛 |
-| `buaa-gold` | #C49B2C | #9A7A22 | 北航金，学术典礼/荣誉表彰 |
-| `buaa-dark` | #1B2D55 | #111D38 | 深空蓝，科技感/深色场景 |
-| `buaa-green` | #2E7D32 | #1E5A22 | 银杏绿，自然/环保/校园主题 |
-| `buaa-purple` | #5C2D91 | #3F1E64 | 星空紫，创新/探索/太空主题 |
+修改 `.md` 文件 YAML 前页中 `theme` 字段即可切换：
 
-CSS 文件位于 `themes/` 目录，以 `buaa.css` 为蓝本通过 `@import-theme 'buaa'` 继承。注册新主题需修改 `.vscode/settings.json` 的 `markdown.marp.themes` 数组。
+```yaml
+---
+marp: true
+theme: buaa-red
+---
+```
+
+### 主题速查
+
+| 主题名 | 文件 | 主色 | 主色深 | 适用场景 |
+|--------|------|:----:|:----:|------|
+| `buaa` | `themes/buaa.css` | #004F9E | #003D7A | 北航蓝（默认），日常汇报/答辩 |
+| `buaa-red` | `themes/buaa-red.css` | #C41230 | #9A0E24 | 北航红，庆典/党建/竞赛 |
+| `buaa-gold` | `themes/buaa-gold.css` | #C49B2C | #9A7A22 | 北航金，学术典礼/荣誉表彰 |
+| `buaa-dark` | `themes/buaa-dark.css` | #1B2D55 | #111D38 | 深空蓝，科技感/深色场景 |
+| `buaa-green` | `themes/buaa-green.css` | #2E7D32 | #1E5A22 | 银杏绿，自然/环保/校园主题 |
+| `buaa-purple` | `themes/buaa-purple.css` | #5C2D91 | #3F1E64 | 星空紫，创新/探索/太空主题 |
+
+### 注册新主题
+
+编辑 `.vscode/settings.json`，将新 CSS 文件路径加入 `markdown.marp.themes` 数组：
+
+```json
+{
+  "markdown.marp.themes": [
+    "themes/buaa.css",
+    "themes/buaa-red.css",
+    "themes/buaa-gold.css",
+    "themes/buaa-dark.css",
+    "themes/buaa-green.css",
+    "themes/buaa-purple.css"
+  ]
+}
+```
+
+**修改 CSS 后生效**：VS Code 中执行 **Developer: Reload Window**（`Ctrl+Shift+P` 搜索该命令）。
+
+所有主题 CSS 文件位于 `themes/` 目录，以 `buaa.css` 为蓝本通过 `@import-theme 'buaa'` 继承。
 
 ---
 
@@ -277,9 +313,24 @@ Step 6: 命名输出文件：以 PPT 主题命名，不加「大纲」「outline
 | 上下文 | `$...$` | `**...**` | 替代方案 |
 |--------|:---:|:---:|------|
 | 裸文本段落 | ✅ | ✅ | 直接用 |
-| `<li>` / `<td>` / `.hm-cap` 内 | ❌ | ❌ | `<i>x</i><sub>1</sub>` / `<strong>` |
+| Markdown 原生列表（`1. ` / `- ` / 嵌套 `- `） | ✅ | ✅ | 直接用 — Marp 渲染管线下 KaTeX 正常 |
 | `##` 标题内 | ✅ | ✅ | 直接用 |
 | `<div>` 内纯文本（未嵌HTML标签） | ✅ | ✅ | 直接用 |
+| HTML `<li>` 标签 | ❌ | ❌ | `<i>x</i><sub>1</sub>` / `<strong>` |
+| `<td>` 表格单元格 | ❌ | ❌ | `<i>x</i><sub>1</sub>` / `<strong>` |
+| `.buaa-hm-cap` 图注 | ❌ | ❌ | `<i>x</i><sub>1</sub>` / `<strong>` |
+
+> **关键区分**：Markdown 原生列表（`1. item` / `- item`）由 Marp 渲染，`$...$` 和 `**text**` 正常生效。只有手工编写的 HTML `<li>`/`<td>` 标签中才禁用。
+
+### 列表语法决策表
+
+| 列表所在上下文 | 推荐语法 | `$...$` | `**text**` |
+|:---|:---:|:---:|:---:|
+| body 容器直接子元素（`layout--flow` / `layout--center`） | `1. ` / `- ` 原生 | ✅ | ✅ |
+| 嵌套在 `<div>` 内（split-2 列 / `.text-block`） | HTML `<ol><li>` / `<ul><li>` | ❌ 用 `<i>x</i><sub>1</sub>` | ❌ 用 `<strong>` |
+| `.buaa-callout` 内 | 裸文字 | ❌ 用 `<i>x</i><sub>1</sub>` | ❌ 用 `<strong>` |
+
+> 典型场景：大纲中 `1. **算法鲁棒性**\n   - DDE对初始值...` → PPT 中直接写成 `1. **算法鲁棒性**\n   - DDE对初始值...`（原生语法，`$...$` 和 `**` 均可用）。唯一例外是当列表必须嵌入 `<div>` 内部时才退回 HTML。
 
 ---
 
@@ -290,3 +341,14 @@ Step 6: 命名输出文件：以 PPT 主题命名，不加「大纲」「outline
 📎 **[references/layout-templates.md](references/layout-templates.md)**
 
 生成时按决策树选定布局后，从该文件复制对应模板替换 `{...}` 占位符。
+
+---
+
+## Reference 文件索引
+
+| 文件 | 内容 | 用途 |
+|------|------|------|
+| [layout-templates.md](references/layout-templates.md) | 11 个布局模板（A-K + C-split） | 按决策树选定布局后复制模板 |
+| [typography-design.md](references/typography-design.md) | 排版设计参考规范 | 字体、字号、颜色体系、推荐布局、样式优先级、常见错误速查 |
+
+> 当用户要求「参照项目风格」或「符合北航VI规范」时，优先参考 typography-design.md。
