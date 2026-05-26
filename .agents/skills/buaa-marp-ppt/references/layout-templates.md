@@ -4,9 +4,13 @@
 
 ---
 
-## 布局 A：文左图右 (buaa-split--2) — ⭐ 图文默认布局
+## 布局 A：图文两列 50:50 (buaa-split--2) — ⭐ 图文默认布局
 
 适用：文字 + 照片/渲染图/封面图/散文段落/bullet列表。
+
+**重要**：左文右图与左图右文两种排布方式**随机选择**，不固定使用某一种，以增加版面的视觉多样性。
+
+### 变体 A1：左文右图
 
 ```html
 <!-- _class: buaa-chapter -->
@@ -49,6 +53,59 @@ section {
 <div class="buaa-hm-fig">
 
 <img src="{图片路径}">
+
+</div>
+
+</div>
+
+</div>
+
+<div class="buaa-chapter__footer"></div>
+<div class="buaa-chapter__page-num">{N}</div>
+```
+
+### 变体 A2：左图右文
+
+与 A1 相同，仅将 `<div class="buaa-hm-fig">` 与 `<div>` 文本块**交换位置**即可。
+
+```html
+<!-- _class: buaa-chapter -->
+
+<style scoped>
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: {80-95}% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateY(0px);
+}
+section {
+  --text-p-size: 26px;
+  --text-p-line-height: 2;
+}
+</style>
+
+<div class="buaa-chapter__badge"><span>{编号}</span></div>
+
+## {主标题}——{副标题}
+
+<div class="buaa-chapter__body buaa-layout--center">
+
+<div class="buaa-split--2 buaa-split--center">
+
+<div class="buaa-hm-fig">
+
+<img src="{图片路径}">
+
+</div>
+
+<div>
+
+{散文段落或 bullet 列表}
 
 </div>
 
