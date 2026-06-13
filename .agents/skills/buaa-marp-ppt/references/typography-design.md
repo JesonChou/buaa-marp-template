@@ -8,8 +8,8 @@
 
 | 参数 | 值 | 说明 |
 |------|:--:|------|
-| 画布尺寸 | 33.9 × 19.1 cm | 标准 16:9 宽屏 |
-| 布局模式 | 空白（Blank） | 不使用预设占位符，纯文本框自由排版 |
+| 画布尺寸 | 1280 × 720 px | 标准 16:9 宽屏 |
+| 布局模式 | 空白（Blank） | 纯文本框自由排版 |
 
 ---
 
@@ -19,8 +19,8 @@
 |------|:--:|------|
 | **HarmonyOS Sans SC Medium** | 主力 | 标题、正文、表格内容 |
 | Noto Sans SC | 辅助 | 正文 |
-| HarmonyOS Sans SC | 辅助 | 副标题、补充文字 |
 | 微软雅黑 | 备选 | 兼容性回退 |
+| Cascadia Code | 代码 | 代码块等宽字体 |
 
 Marp 中设定字体栈：
 
@@ -32,16 +32,16 @@ font-family: "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 
 ## 字号层级
 
-| 字号 | 层级 | 用途 | Marp 映射 |
-|:----:|:--:|------|-----------|
-| **24pt** | **正文主力** | 段落文字 | `--text-p-size: 24px` |
-| 22pt | 正文辅助 | 内容文字 | `--text-size: 22px` |
-| 20pt | 内容/表格 | 表格正文 | `--text-size: 20px` |
-| 12-14pt | 小字 | 表格内容、注释 | — |
-| 11pt | 最小 | 脚注 | — |
-| 73-96pt | 封面 | 封面主标题 | `buaa-cover h1` 硬编码 |
-| 38-40pt | 封面 | 封面副标题 | `buaa-cover h2` 硬编码 |
-| 28pt | 强调 | 页面强调标题 | `h2` 默认字号 |
+| 用途 | CSS 变量 / 目标 | 默认值 |
+|------|------|:--:|
+| 封面主标题 | `buaa-cover h1` 硬编码 | 73-96pt |
+| 封面副标题 | `buaa-cover h2` 硬编码 | 38-40pt |
+| 正文段落 | `--text-p-size` | **26px** |
+| 正文列表 | `--text-size` | 24px |
+| 表格内容 | 继承段落字号 | ~22px |
+| 代码块 | `--pre-font-size` | 22px |
+| 行内代码 | `--code-font-size` | 0.9em |
+| 脚注/注释 | `--text-size` 调小 | 18-20px |
 
 ---
 
@@ -49,16 +49,15 @@ font-family: "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 
 | 色值 | 角色 | 用途 |
 |------|:--:|------|
-| **#005BAC** | **主色** | 标题、强调、表头、图形着色 |
-| #505050 | 正文灰 | 正文段落 |
+| **#004F9E** | **主色（北航蓝）** | 标题、强调、表头、badge、图形着色 |
+| #003D7A | 主色深 | 表格边框、表头 |
+| #333333 | 正文深灰 | 段落文字 |
+| #444-#666 | 辅助灰 | 递减层级 |
 | #FF0000 | 强调红 | 关键词强调、警示信息 |
-| #333333 | 深灰 | 正文深色 |
 | #FFFFFF | 反白 | 深色背景上的文字 |
-| #0078D7 | 辅助蓝 | 链接、高亮 |
-| #009688 | 辅助青绿 | 图表点缀 |
-| #D97706 | 辅助橙 | 图表点缀 |
+| rgba(0,79,158,0.06) | 浅蓝背景 | 表格条纹、callout、代码行内背景 |
 
-主色 `#005BAC` 可映射为 `--buaa-primary: #005BAC` 覆盖默认蓝。
+各主题变体通过 CSS 变量 `--buaa-primary` 覆盖主色。
 
 ---
 
@@ -66,9 +65,9 @@ font-family: "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 
 ### 优先使用
 
-- 顶部标题 + 下方段落/列表（占 70%+）
-- 标题 + 居中表格（含表头着色）
-- 标题 + 左侧文字 + 右侧图片
+- 顶部标题 + 下方段落/列表（布局 B，占 70%+）
+- 标题 + 居中表格（布局 C）
+- 标题 + 左文右图（布局 A）
 - 封面/结尾页
 
 ### 避免过度复杂
@@ -76,20 +75,18 @@ font-family: "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 - 多图片画廊（img-gallery）— 不兼容图注
 - 系统框图（block-diagram）— 仅在明确需求时使用
 - 双栏密集对比（split-top）— 注意字号需缩小至 19px
-- 图片固定 max-height — 已废弃，改用 Grid 居中 + 双向约束模式（见 layout-templates.md 附录）
+- 图片固定 max-height — 已废弃，改用 Grid 居中 + 双向约束模式
 
 ---
 
 ## 样式优先级
 
-| 优先级 | 方式 | 可靠性 |
-|:---:|------|:---:|
-| 1（最高） | inline `style="..."` | ✅ 始终有效 |
-| 2 | `<style scoped>` 中 `section { --var: val; }` | ✅ 唯一可靠 scoped 方式 |
-| 3 | `<style scoped>` 中直接写选择器 | ⚠️ 不可靠，specificity 常不足 |
-| 4（最低） | `buaa.css` 全局默认 | 默认值 |
-
-详细失效原因与有效写法见 SKILL.md Scoped 样式覆盖指南。
+| 优先级 | 方式 | 可靠性 | 适用 |
+|:---:|------|:---:|------|
+| 1（最高） | inline `style="..."` | ✅ 始终有效 | 目录 ul |
+| 2 | `<style scoped>` 中 `section { --var:val }` | ✅ 可靠 | pre / code / table / p |
+| 3 | `<style scoped>` 中直接写选择器 | ✅ ol/ul/callout/hm-fig 可用 | 见 SKILL.md §2.4 安全列表 |
+| 4（最低） | `buaa.css` 全局默认 | 默认值 | 无需覆盖时 |
 
 ---
 
@@ -98,13 +95,13 @@ font-family: "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 | 错误写法 | 正确做法 | 原因 |
 |----------|----------|------|
 | `.text-block` 内用 `<p>` | 裸写文字 | `<p>` 阻断 KaTeX |
-| 把大纲 `1. item` 转为 `<ol><li>item</li></ol>` | 保留 `1. item` 原生语法 | HTML `<li>` 阻断 `$...$` 和 `**text**`，且丧失 Markdown 原生可读性 |
-| HTML `<li>` 内写 `$...$` | 用 Markdown 原生列表或 `<i>x</i><sub>1</sub>` | HTML `<li>` 不经 KaTeX 处理 |
+| 把大纲 `1. item` 转为 `<ol><li>` | 保留原生语法 | HTML `<li>` 阻断 `$...$` 和 `**text**` |
+| HTML `<li>` 内写 `$...$` | 用原生列表或 `<i>x</i><sub>1</sub>` | HTML `<li>` 不经 KaTeX |
 | `## 标题` 不完整 | `## 主标题——副标题` | 大纲给了就要用 |
-| 多页同编号未细化 | 自动细化 X.Y.Z | 见 SKILL.md 规则 |
-| 目录 `ul` 无 inline style | 必须有 `style="position:absolute;..."` | scoped CSS 可能被忽略 |
-| `<footer>` 标签 | `<div class="footer-bar">` | Marp 不白名单 footer |
-| 幻灯片内 `---` | `<hr>` | `---` 是分隔符 |
-| `<img class/style>` | 父 div class + CSS 选择器 | Marp 剥离 img 的 class/style |
-| scoped 中 `pre { font-size }` | `section { --pre-font-size: 22px; }` | specificity 不足 |
-| 修改 `buaa.css` 全局样式 | 在 `.md` 中 `section { --var: val; }` | CSS 变量注入不依赖 specificity |
+| 多页同编号未细化 | 自动细化 X.Y.Z | 见约束 #10 |
+| 目录 `ul` 无 inline style | 必须 `style="position:absolute;..."` | inline 最可靠 |
+| `<footer>` 标签 | `<div class="buaa-chapter__footer">` | Marp 不白名单 footer |
+| 幻灯片内 `---` | `<hr>` | `---` 是分页符 |
+| `<img class/style>` | 父 div class + CSS 选择器 | Marp 剥离 img class/style |
+| scoped 中 `pre { font-size }` | `section { --pre-font-size:22px }` | specificity 不足 |
+| 修改 `buaa.css` 全局样式 | 在 `.md` 中 `section { --var:val }` | CSS 变量注入 |
