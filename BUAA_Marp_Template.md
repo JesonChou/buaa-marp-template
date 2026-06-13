@@ -1215,14 +1215,13 @@ AI 生成的 <code>.md</code> 文件中，<code>&lt;style scoped&gt;</code> 包�
 <style scoped>
 /* === 代码块字体可调参数 === */
 section {
-  --pre-font-size:   30px;      /* 字号: 支持 px/em/rem, 如 18px 0.9em */
-  --pre-font-family: "Consolas", "Courier New", "Fira Code", monospace;  /* 字体 */
-  --pre-color:       #2d3436;   /* pre 文字色: 支持 #hex / rgb() / rgba() */
-  --pre-code-color:  #2d3436;   /* pre 内 code 颜色 (通常与 pre-color 一致) */
-  --pre-line-height: 1.6;       /* 行高 */
-  --code-font-size:  1em;       /* code 相对字号: 1em = 与 pre 等大, 0.85em = 缩小15% */
-  --text-p-size:     18px;
-  --text-p-line-height: 1.5;
+  --pre-font-size:   30px;
+  --pre-line-height: 1.5;
+  --pre-font-weight: 700;
+  --pre-bg:          #eeeeffff;
+  --pre-color:       #3c5316ff;
+  --pre-padding:     24px 36px;
+  --pre-border-left: 5px solid #000e25ff;
 }
 </style>
 

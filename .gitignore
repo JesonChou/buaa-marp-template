@@ -1,0 +1,6 @@
+/.codegraph
+/.reasonix
+
+# Paper reconstructions — kept locally via references branch, not pushed
+/A_Phaseless_*
+/An_Effective_EMI_*

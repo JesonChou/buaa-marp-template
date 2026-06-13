@@ -410,17 +410,19 @@ section.buaa-end img {
 
 section.buaa-chapter pre,
 section.buaa-end pre {
-  background: #f5f7fa;
+  background: var(--pre-bg, #f5f7fa);
   color: var(--pre-color, #333);
-  padding: 20px 28px;
-  border-radius: 8px;
-  font-size: var(--pre-font-size, 18px);
-  font-family: var(--pre-font-family, "Consolas", "Source Code Pro", "Courier New", monospace);
+  padding: var(--pre-padding, 20px 28px);
+  border-radius: var(--pre-border-radius, 8px);
+  font-size: var(--pre-font-size, 22px);
+  font-family: var(--pre-font-family, "Cascadia Code", "JetBrains Mono", "Consolas", "Source Code Pro", "Courier New", monospace);
+  font-weight: var(--pre-font-weight, 400);
   line-height: var(--pre-line-height, 1.6);
+  letter-spacing: var(--pre-letter-spacing, normal);
   overflow-x: auto;
-  margin: 14px 0;
-  border: 1px solid #d0d6e0;
-  border-left: 4px solid var(--buaa-primary);
+  margin: var(--pre-margin, 14px 0);
+  border: var(--pre-border, 1px solid #d0d6e0);
+  border-left: var(--pre-border-left, 4px solid var(--buaa-primary));
 }
 
 section.buaa-chapter code,
@@ -436,9 +438,11 @@ section.buaa-end code {
 section.buaa-chapter pre code,
 section.buaa-end pre code {
   background: none;
-  color: var(--pre-code-color, #333);
+  color: var(--pre-code-color, var(--pre-color, #333));
   padding: 0;
   font-family: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
 }
 
 /* Blockquotes */
