@@ -17,12 +17,20 @@ Given an outline `.md`, produce a complete Marp presentation. No other input nee
 ## §1 生成流水线
 
 ```
-Step 0: Parse headings — # file title; ## Slide N: [tag]; ### {num} title——subtitle; #### sub-page marker
-Step 1: For each body slide, pick layout by matching content against the decision table below
-Step 2: Copy the matching HTML template from references/layout-templates.md, fill {placeholders}
-Step 3: Number pages: cover/contents/transition unnumbered; body 1..N; end-page last
-Step 4: Assemble: cover → contents → transition → body×N → transition → … → end
-Step 5: Name output as {outline-filename-stem}.md  (strip "-outline" suffix)
+Step 0: Write YAML frontmatter at file top:
+```yaml
+---
+marp: true
+theme: {user-chosen-theme}
+paginate: false
+---
+```
+Step 1: Parse headings — # file title; ## Slide N: [tag]; ### {num} title——subtitle; #### sub-page marker
+Step 2: For each body slide, pick layout by matching content against the decision table below
+Step 3: Copy the matching HTML template from references/layout-templates.md, fill {placeholders}
+Step 4: Number pages: cover/contents/transition unnumbered; body 1..N; end-page last
+Step 5: Assemble: cover → contents → transition → body×N → transition → … → end
+Step 6: Name output as {outline-filename-stem}.md  (strip "-outline" suffix)
 ```
 
 ## §2 布局决策表
@@ -88,10 +96,10 @@ Cascadia Code 内置字重：300(Light) / 400(Regular) / 600(SemiBold) / 700(Bol
 12. 加粗：原生列表/裸文本 `**text**` ✅；HTML `<li>`/`<td>` 中用 `<strong>`
 13. Scoped → 必须 `section { --var:val; }` 注入 CSS 变量。**禁止写选择器** (全局 specificity 更高)
 
-    **为什么选择器会失效**：Marp 的 `<style scoped>` 会给选择器追加 `[data-marpit-scope]` 属性选择器。全局 CSS 中 `section.buaa-chapter pre` 的 specificity=(0,1,2)，scoped 中的裸 `pre` 也是 (0,1,2)，且 Marp 的 CSS 处理顺序导致后加载的全局规则覆盖 scoped。只有通过 `section { --var: val; }` 注入 CSS 变量，才能穿透 specificity 屏障——因为 CSS 自定义属性通过继承流入子元素，不受选择器优先级影响。
+    **为什么选择器会失效**：Marp 的 `<style scoped>` 会给选择器追加 `[data-marpit-scope]` 属性选择器，但全局规则（如 `section.buaa-chapter pre`）的 specificity 更高，加上 Marp 的 CSS 处理顺序使全局规则后加载，scoped 选择器必然被覆盖。只有通过 `section { --var: val; }` 注入 CSS 变量，才能穿透 specificity 屏障——因为 CSS 自定义属性通过继承流入子元素，不受选择器优先级影响。
 
 14. 图片：`<div class="buaa-hm-fig">` → 空行 → `<img>` → 空行 → `</div>` (防 `<p>` 包裹)
-15. 禁止 `<footer>` / 内容中 `---` (用 `<hr>`) / `<img class/style>`
+15. 禁止 `<footer>` / 正文区域内 `---` / `<img class/style>`。`---` 会被 Marp 解析为分页符而非分割线；需要分割线时用 `<hr>`
 
 ### 注意 (影响质量)
 
@@ -138,6 +146,9 @@ Cascadia Code 内置字重：300(Light) / 400(Regular) / 600(SemiBold) / 700(Bol
 <style scoped>
 /* .buaa-hm-fig img { max-width:XX% !important; max-height:XXpx !important; } */
 section { --text-p-size: {段落字号}; --text-p-line-height: {段落行高}; }
+/* 有代码块时追加 --pre-font-size --pre-font-family --pre-color --pre-line-height 等；
+   有列表时追加 --text-size --text-line-height --text-item-gap；
+   有流程图时追加 --fc-font-size --arr-length --arr-color */
 </style>
 <div class="buaa-chapter__badge"><span>{编号}</span></div>
 ## {主标题}——{副标题}
