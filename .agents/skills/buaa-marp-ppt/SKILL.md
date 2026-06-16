@@ -2,12 +2,12 @@
 name: buaa-marp-ppt
 description: >
   Generate BUAA-themed Marp PPT from an outline file. Given any outline `.md`,
-  the agent parses headings, selects one of 13 layouts per slide, fills HTML
+  the agent parses headings, selects one of 15 layouts per slide, fills HTML
   templates, and writes a complete, self-contained Marp markdown file.
-  Supports 6 BUAA color themes and 13 layout templates (A–K + C‑split + Fglass).
+  Supports 6 BUAA color themes and 15 layout templates (A–M + C‑split + Fglass).
   No external dependencies beyond the themes/ directory.
 metadata:
-  version: "5.0.0"
+  version: "5.1.0"
 compatibility: Trae / Cursor / VS Code with Marp. Requires themes/ directory.
 ---
 
@@ -119,6 +119,8 @@ Step 6 — 命名输出文件：
 | `流程图` `步骤` | **G** | `buaa-layout--center` + buaa-flow-chart | `--fc-font-size:24px` |
 | `系统框图` | **H** | `buaa-layout--center` + buaa-block-diagram | (见模板内变量) |
 | `双图并排` + 图注 | **I** | `buaa-layout--flow` + img-pair | — |
+| `双栏图文` `分栏图文` `图文双栏` `两列图文` | **L** | `buaa-layout--center` + split-2-top + strong+ul+hm-fig | `--text-p-size:24px; --text-p-line-height:1.8` |
+| `三列图文` `三图并排` `三栏图文` | **M** | `buaa-layout--flow` + buaa-row-3 + strong+hm-fig | `--text-p-size:24px; --text-p-line-height:1.8` |
 | `分类列表` `strong标题+列表` | **J** | `buaa-layout--flow` | `--text-size:22px; --text-line-height:2` |
 | `满页大图` `纯大图` | **K** | `buaa-layout--center` + hm-fig | — |
 | `居中表格` `居中混排含列表` | **E** | `buaa-layout--center` + text-block | `--text-p-size:26px; --text-p-line-height:1.7` |
@@ -146,6 +148,9 @@ Step 6 — 命名输出文件：
 | `.buaa-text-block` / `.buaa-text-block ul` / `.buaa-text-block ul li` | 文本块内嵌列表 |
 | `.buaa-split--2 > div > strong` | 分栏分类标题 |
 | `.buaa-split--2 ol` / `.buaa-split--2 ol li` | 分栏内嵌列表 |
+| `.buaa-split--2 ul` / `.buaa-split--2 ul li` | 分栏内嵌无序列表 |
+| `.buaa-fig-row` | 栏内双图并排容器 |
+| `.buaa-row-3` | 三列图文容器 |
 | `.buaa-flow-chart` / `.buaa-flow-chart__arrow` | 流程图 |
 | `.buaa-block-diagram` | 系统框图 |
 | `.buaa-hm-fig` / `.buaa-hm-fig img` | 图片容器 |
@@ -257,6 +262,12 @@ section { --text-p-size: {段落字号}; --text-p-line-height: {段落行高}; }
 <div class="buaa-chapter__badge"><span>结语</span></div>
 # 感谢您的观看与收听，敬请批评指正
 ## Q &amp; A
+<!-- 可选：答辩信息区 -->
+<div class="buaa-end__info">
+  <p>答辩人：{姓名}</p>
+  <p>参评项目：{项目名}</p>
+  <p>时间：{日期}</p>
+</div>
 <div class="buaa-chapter__footer"></div>
 <div class="buaa-chapter__page-num">{N}</div>
 ```
@@ -322,6 +333,17 @@ section { --text-p-size: {段落字号}; --text-p-line-height: {段落行高}; }
 | `buaa-arrow--lg` | 箭头放大至 140% |
 
 用法：加在流程图或系统框图的箭头 div 上，如 `<div class="buaa-flow-chart__arrow buaa-arrow--line-long buaa-arrow--lg">`
+
+### 5.6 图片尺寸修饰符
+
+同一页中不同图片可能需要不同尺寸时，在 scoped 中定义 `.buaa-hm-fig--a` / `--b` / `--c` / `--d` 修饰符，叠加在 `<div class="buaa-hm-fig">` 上：
+
+```css
+.buaa-hm-fig--a img { max-height: 180px !important; max-width: 100% !important; }
+.buaa-hm-fig--b img { max-height: 200px !important; max-width: 100% !important; }
+```
+
+用法：`<div class="buaa-hm-fig buaa-hm-fig--a"><img src="..."></div>`
 
 ---
 

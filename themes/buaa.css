@@ -1244,6 +1244,46 @@ section.buaa-end .buaa-chapter__body {
 }
 
 /* ================================================================
+   Block: Figure Row (buaa-fig-row) — 2 hm-fig side-by-side
+   ================================================================ */
+
+.buaa-fig-row {
+  display: flex !important;
+  gap: 10px;
+  width: 100%;
+}
+.buaa-fig-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ================================================================
+   Block: 3-Column Row (buaa-row-3) — strong + hm-fig per column
+   ================================================================ */
+
+.buaa-row-3 {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 12px 0;
+}
+.buaa-row-3 > div {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.buaa-row-3 strong {
+  display: block;
+  font-size: 20px;
+  color: var(--buaa-primary);
+  margin-bottom: 8px;
+}
+
+/* ================================================================
    Block: Text Block (buaa-text-block)
    ================================================================ */
 

@@ -1,6 +1,6 @@
 # BUAA Marp 布局模板库
 
-> 本文件包含 **13** 个正文布局的 body 内容模板（A-K + C-split + Fglass）。
+> 本文件包含 **15** 个正文布局的 body 内容模板（A-M + C-split + Fglass）。
 > 使用时从 SKILL.md §2 决策表选定布局后，将对应模板的 `<style scoped>` 与 `<div class="buaa-chapter__body">` 内部内容嵌入 SKILL.md §4 正文外套。
 >
 > **外套由 SKILL.md §4 统一提供**（badge + heading + footer + page-num），本文件只提供 body 内容区域。
@@ -627,9 +627,227 @@ Body 内容：
 
 ---
 
+## 布局 L：双栏图文 (buaa-split--2 + strong + ul + hm-fig) — ⭐ v5.1 新增
+
+适用：两栏各含 strong 分类标题、简短的 ul 条目、以及一张配图。可选底部 callout。
+
+NL 触发：`双栏图文` `分栏图文` `图文双栏` `两列图文`
+
+`<style scoped>` 块：
+```css
+section { --text-p-size: 24px; --text-p-line-height: 1.8; }
+/* === 5:5 双栏容器 === */
+.buaa-split--2.buaa-split--top > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.buaa-split--2.buaa-split--top > div > strong {
+  display: block;
+  font-size: 22px;
+  color: #004F9E;
+  margin-bottom: 6px;
+}
+.buaa-split--2 ul {
+  font-size: 18px; line-height: 1.6;
+  padding-left: 20px; margin: 0 0 8px 0;
+}
+.buaa-split--2 ul li {
+  font-size: 18px; margin-bottom: 4px; color: #444;
+}
+/* === 图片容器 === */
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: {80-95}% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateX(0px) translateY(0px);
+}
+/* === 可选：callout === */
+.buaa-callout {
+  font-size: 24px; margin-top: 12px; margin-bottom: 0;
+  color: #004F9E; font-weight: bold;
+}
+```
+
+Body 内容：
+```html
+<div class="buaa-chapter__body buaa-layout--center">
+
+<div class="buaa-split--2 buaa-split--top">
+
+<div>
+
+<strong>{左栏标题}</strong>
+
+<ul>
+  <li>{条目一}</li>
+  <li>{条目二}</li>
+</ul>
+
+<div class="buaa-hm-fig">
+
+<img src="{图片路径}">
+
+</div>
+
+</div>
+
+<div>
+
+<strong>{右栏标题}</strong>
+
+<ul>
+  <li>{条目一}</li>
+  <li>{条目二}</li>
+</ul>
+
+<div class="buaa-hm-fig">
+
+<img src="{图片路径}">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- 可选 callout -->
+<div class="buaa-callout">
+<center><strong>{总结语}</strong></center>
+</div>
+
+</div>
+```
+
+### L 变体：双栏图文含双图（栏内 buaa-fig-row）
+
+当单栏需放 2 张图时，将 `<div class="buaa-hm-fig"><img></div>` 替换为：
+
+```html
+<div class="buaa-fig-row">
+
+<div class="buaa-hm-fig">
+
+<img src="{图1路径}">
+
+</div>
+
+<div class="buaa-hm-fig">
+
+<img src="{图2路径}">
+
+</div>
+
+</div>
+```
+
+### L 变体：双栏图文含双图+分段列表
+
+当每栏内容较复杂（如：列表 + 图 + 列表 + 图），在 scoped 中追加图片手动调整修饰符：
+
+```css
+/* 图片手动调整 — 不同图片可能需要不同的 max-height */
+.buaa-hm-fig--a img { max-height: 180px !important; max-width: 100% !important;
+  transform: translateX(0px) translateY(-15px) !important; }
+.buaa-hm-fig--b img { max-height: 200px !important; max-width: 100% !important;
+  transform: translateX(0px) translateY(-15px) !important; }
+```
+
+使用时叠加 class：`<div class="buaa-hm-fig buaa-hm-fig--a">`
+
+---
+
+## 布局 M：三列图文 (buaa-row-3 + strong + hm-fig) — ⭐ v5.1 新增
+
+适用：三列并排，每列一个 strong 标题 + 一张配图。可选顶部散文段落和底部 callout。
+
+NL 触发：`三列图文` `三图并排` `三栏图文`
+
+`<style scoped>` 块：
+```css
+section { --text-p-size: 24px; --text-p-line-height: 1.8; }
+.buaa-hm-fig {
+  display: grid !important;
+  place-items: center !important;
+}
+.buaa-hm-fig img {
+  max-width: 95% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  transform: translateX(0px) translateY(0px);
+}
+.buaa-callout {
+  font-size: 24px; margin-top: 12px; margin-bottom: 0;
+  color: #004F9E; font-weight: bold;
+}
+```
+
+Body 内容：
+```html
+<div class="buaa-chapter__body buaa-layout--flow">
+
+<!-- 可选顶部说明 -->
+<center>{说明段落}</center>
+
+<div class="buaa-row-3">
+
+<div>
+
+<strong>{列一标题}</strong>
+
+<div class="buaa-hm-fig">
+
+<img src="{图1路径}">
+
+</div>
+
+</div>
+
+<div>
+
+<strong>{列二标题}</strong>
+
+<div class="buaa-hm-fig">
+
+<img src="{图2路径}">
+
+</div>
+
+</div>
+
+<div>
+
+<strong>{列三标题}</strong>
+
+<div class="buaa-hm-fig">
+
+<img src="{图3路径}">
+
+</div>
+
+</div>
+
+</div>
+
+<!-- 可选 callout -->
+<div class="buaa-callout">
+<center><strong>{总结语}</strong></center>
+</div>
+
+</div>
+```
+
+---
+
 ## 附录：图片宽高比保持模式
 
-> 自 v3 起，所有含图片的布局（A / F / I / K）统一采用此 Grid 居中 + 双向约束模式。
+> 自 v3 起，所有含图片的布局（A / F / I / K / L / M）统一采用此 Grid 居中 + 双向约束模式。
 
 ### 为什么
 
