@@ -1389,6 +1389,22 @@ section.buaa-end h2 {
   margin: 0;
 }
 
+/* 结尾页底部信息 */
+section.buaa-end .buaa-end__info {
+  position: absolute;
+  left: 50%;
+  bottom: 80px;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 2;
+}
+section.buaa-end .buaa-end__info p {
+  font-size: 22px;
+  color: #888;
+  margin: 4px 0;
+  letter-spacing: 2px;
+}
+
 /* ========== Block: Multi-Column Layouts (buaa-columns) ========== */
 
 .buaa-columns {
