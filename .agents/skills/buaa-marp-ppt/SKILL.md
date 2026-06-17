@@ -5,15 +5,21 @@ description: >
   the agent parses headings, selects one of 15 layouts per slide, fills HTML
   templates, and writes a complete, self-contained Marp markdown file.
   Supports 6 BUAA color themes and 15 layout templates (A–M + C‑split + Fglass).
-  No external dependencies beyond the themes/ directory.
-metadata:
-  version: "5.1.0"
-compatibility: Trae / Cursor / VS Code with Marp. Requires themes/ directory.
+  Compatible with Trae / Cursor / VS Code + Marp. Requires themes/ directory.
+when_to_use: >
+  When the user asks to generate a BUAA Marp PPT, create presentation slides,
+  convert an outline to Marp format, or make a BUAA-themed slide deck.
+argument-hint: <outline-file.md>
+arguments: outline_file
+disable-model-invocation: true
+context: fork
+allowed-tools: Read Write Bash Grep Glob
 ---
 
 # BUAA Marp PPT Skill
 
-Given **any** outline `.md`, produce a complete, self-contained Marp presentation.
+Read the outline from `$1` and produce a complete, self-contained Marp presentation.
+
 No other input is needed — no example files, no project-specific paths.
 
 ---
@@ -106,7 +112,7 @@ Step 6 — 命名输出文件：
 ### 2.2 决策表
 
 | NL 触发词 | 布局 | body class | 密度变量 |
-|---|---|---|---|
+|:-:|:-:|:-:|:-:|
 | `纯文字` `文字段落` `散文` | **B**‑flow | `buaa-layout--flow` | `--text-p-size:26px; --text-p-line-height:2` |
 | `居中`（带公式/表格） | **C** | `buaa-layout--center` | `--text-p-size:26px; --text-p-line-height:1.7` |
 | `居中，双栏` `窄表格`（≤3列） | **C‑split** | `buaa-split--2 buaa-split--top` | `--text-size:22px; --text-line-height:1.8` |
@@ -129,7 +135,7 @@ Step 6 — 命名输出文件：
 ### 2.3 密度变量速查
 
 | 场景 | CSS 变量（通过 `section { }` 注入） | 默认值 |
-|---|---|---|
+|:-:|:-:|:-:|
 | 段落 | `--text-p-size` · `--text-p-line-height` | 26px · 1.7 |
 | 列表（原生 `1.` / `-`） | `--text-size` · `--text-line-height` · `--text-item-gap` | 24px · 1.8 · 8px |
 | 代码块 `pre` | `--pre-font-size` · `--pre-font-family` · `--pre-bg` · `--pre-color` · `--pre-code-color` · `--pre-line-height` · `--pre-font-weight` · `--pre-padding` · `--pre-border-left` · `--pre-border-radius` · `--pre-border` · `--pre-margin` · `--pre-letter-spacing` | 22px · Cascadia Code · #f5f7fa · #333 · 回退 --pre-color · 1.6 · 400 · 20px 28px · 4px solid var(--buaa-primary) · 8px · 1px solid #d0d6e0 · 14px 0 · normal |
@@ -141,7 +147,7 @@ Step 6 — 命名输出文件：
 全局 CSS 对以下元素**没有**高-specificity 规则，scoped 中可直接写选择器：
 
 | 选择器 | 典型用途 |
-|---|---|
+|:-:|:-:|
 | `ol` / `ol li` / `ol ul` / `ol ul li` | 有序列表密度 |
 | `ul` / `ul li` | 无序列表密度 |
 | `.buaa-callout` | 总结框样式 |
@@ -155,8 +161,7 @@ Step 6 — 命名输出文件：
 | `.buaa-block-diagram` | 系统框图 |
 | `.buaa-hm-fig` / `.buaa-hm-fig img` | 图片容器 |
 
-**必须用 `section { --var:val }` 注入的选择器**（全局有高-specificity 规则）：
-`pre`、`code`、`pre code`、`table`、`p`、`blockquote`
+**必须用 `section { --var:val }` 注入的选择器**（全局有高-specificity 规则）：`pre`、`code`、`pre code`、`table`、`p`、`blockquote`
 
 ---
 
@@ -196,6 +201,7 @@ Step 6 — 命名输出文件：
 ## §4 页面外套（skeleton）
 
 以下 5 种页面外套在生成时**直接使用**，`{...}` 占位符填入实际内容。
+
 正文外套的 `<div class="buaa-chapter__body">` 内嵌入 §2 决策表选定的布局模板。
 
 ### 封面
@@ -274,98 +280,24 @@ section { --text-p-size: {段落字号}; --text-p-line-height: {段落行高}; }
 
 ---
 
-## §5 高级修饰符（Advanced Modifiers）
+## §5 高级修饰符 & 主题
 
-`buaa-am--*` 系列 class 可直接叠加在 `<!-- _class: buaa-chapter -->` 行或 body 容器上，无需额外 CSS。
+> 详细 CSS class 速查见 `references/advanced-modifiers.md`（字号缩放、彩色引用块、特殊布局、多栏列表、箭头/图片修饰符）。
+>
+> 主题色板见 `references/theme-reference.md`（6 种 BUAA 主题：蓝/红/金/深空蓝/绿/紫）。
 
-### 5.1 字号缩放
-
-| class | 效果 | 适用 |
-|---|---|---|
-| `buaa-am--tinytext` | 整页缩至 80% | 密集数据页 |
-| `buaa-am--smalltext` | 整页缩至 90% | 较多内容页 |
-| `buaa-am--largetext` | 整页放大至 115% | 强调展示页 |
-| `buaa-am--hugetext` | 整页放大至 130% | 标题页 |
-
-用法：`<!-- _class: buaa-chapter buaa-am--smalltext -->`
-
-### 5.2 彩色引用块
-
-叠加在 section 上，blockquote 自动着色：
-
-| class | 颜色 |
-|---|---|
-| `buaa-am--bq-blue` | #004F9E 蓝 |
-| `buaa-am--bq-red` | #dc3545 红 |
-| `buaa-am--bq-green` | #28a745 绿 |
-| `buaa-am--bq-purple` | #6f42c1 紫 |
-| `buaa-am--bq-black` | #333 黑 |
-
-### 5.3 特殊布局
-
-| class | 说明 |
-|---|---|
-| `buaa-am--fglass` | 毛玻璃效果列表（白色背景 + 投影 + 非对称圆角），叠加在 body 容器上 |
-| `buaa-am--navbar` | 顶部导航进度栏 |
-| `buaa-am--footnote` | 脚注布局（CSS Grid 分区：正文 + 脚注） |
-| `buaa-am--fixedtitle-a` / `b` | 固定标题栏（标题始终在顶部，内容区可滚动） |
-| `buaa-am--trans` | 过渡页增强变体 |
-| `buaa-am-card` | 增强卡片样式 |
-| `buaa-am-icon-list` | 图标列表 |
-| `buaa-am--caption` | 图片/表格题注样式 |
-
-### 5.4 多栏列表
-
-| class | 说明 |
-|---|---|
-| `buaa-am-cols2-ul--sq` / `--ci` | 两栏无序列表（方形/圆形序号） |
-| `buaa-am-cols2-ol--sq` / `--ci` | 两栏有序列表（方形/圆形序号） |
-| `buaa-am-col1-ol--sq` / `--ci` | 单栏有序列表（方形/圆形序号） |
-| `buaa-am-col1-ul--sq` / `--ci` | 单栏无序列表（方形/圆形序号） |
-
-用法：在 `buaa-chapter__body` 容器内嵌入 `<div class="buaa-am-cols2-ul--sq"><ul>...</ul></div>`
-
-### 5.5 箭头尺寸
-
-| class | 效果 |
-|---|---|
-| `buaa-arrow--sm` | 箭头缩小至 70% |
-| `buaa-arrow--lg` | 箭头放大至 140% |
-
-用法：加在流程图或系统框图的箭头 div 上，如 `<div class="buaa-flow-chart__arrow buaa-arrow--line-long buaa-arrow--lg">`
-
-### 5.6 图片尺寸修饰符
-
-同一页中不同图片可能需要不同尺寸时，在 scoped 中定义 `.buaa-hm-fig--a` / `--b` / `--c` / `--d` 修饰符，叠加在 `<div class="buaa-hm-fig">` 上：
-
-```css
-.buaa-hm-fig--a img { max-height: 180px !important; max-width: 100% !important; }
-.buaa-hm-fig--b img { max-height: 200px !important; max-width: 100% !important; }
-```
-
-用法：`<div class="buaa-hm-fig buaa-hm-fig--a"><img src="..."></div>`
-
----
-
-## §6 主题切换
-
-在 YAML frontmatter 中修改 `theme` 字段：
-
-| theme | 主色 | 适用场景 |
-|---|---|---|
-| `buaa` | #004F9E 北航蓝 | 默认，日常汇报/答辩 |
-| `buaa-red` | #C41230 北航红 | 庆典/党建/竞赛 |
-| `buaa-gold` | #C49B2C 北航金 | 学术典礼/荣誉表彰 |
-| `buaa-dark` | #1B2D55 深空蓝 | 科技感/深色场景 |
-| `buaa-green` | #2E7D32 银杏绿 | 自然/环保/校园 |
-| `buaa-purple` | #5C2D91 星空紫 | 创新/探索/太空 |
+常用速记：
+- 字号缩放：`buaa-am--tinytext`(80%) / `--smalltext`(90%) / `--largetext`(115%) / `--hugetext`(130%)
+- 毛玻璃：`buaa-am--fglass` 叠加在 body 容器上
+- 多栏列表：`buaa-am-cols2-ul--sq` / `--ci` 等嵌入 body
+- 主题：YAML `theme:` 字段切换 `buaa` / `buaa-red` / `buaa-gold` / `buaa-dark` / `buaa-green` / `buaa-purple`
 
 ---
 
 ## §7 常见陷阱速查
 
 | 错误 | 正确 | 原因 |
-|---|---|---|
+|:-:|:-:|:-:|
 | `.text-block` 内用 `<p>` | 裸写文字 | `<p>` 阻断 KaTeX |
 | HTML `<li>` 内写 `$...$` | 用原生列表或 `<i>x</i><sub>1</sub>` | HTML `<li>` 不经 KaTeX |
 | `## 标题` 缺副标题 | `## 主标题——副标题` | 大纲给了就要用 |
@@ -378,4 +310,9 @@ section { --text-p-size: {段落字号}; --text-p-line-height: {段落行高}; }
 ---
 
 > 13 套正文布局完整 HTML 模板见 `references/layout-templates.md`。
+>
 > 排版设计参考（字体、字号、颜色）见 `references/typography-design.md`。
+>
+> 高级修饰符 CSS class 速查见 `references/advanced-modifiers.md`。
+>
+> 主题色板参考见 `references/theme-reference.md`。
