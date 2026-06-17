@@ -1,11 +1,6 @@
 ---
 name: buaa-marp-ppt
-description: >
-  Generate BUAA-themed Marp PPT from an outline file. Given any outline `.md`,
-  the agent parses headings, selects one of 15 layouts per slide, fills HTML
-  templates, and writes a complete, self-contained Marp markdown file.
-  Supports 6 BUAA color themes and 15 layout templates (A–M + C‑split + Fglass).
-  Compatible with Trae / Cursor / VS Code + Marp. Requires themes/ directory.
+description: 根据大纲文件生成北航主题的Marp演示文稿，支持15种布局模板与6种配色方案。
 when_to_use: >
   When the user asks to generate a BUAA Marp PPT, create presentation slides,
   convert an outline to Marp format, or make a BUAA-themed slide deck.
