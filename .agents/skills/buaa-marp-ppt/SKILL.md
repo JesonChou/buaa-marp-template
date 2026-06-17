@@ -13,12 +13,12 @@ argument-hint: <outline-file.md>
 arguments: outline_file
 disable-model-invocation: true
 context: fork
-allowed-tools: Read Write Bash Grep Glob
+allowed-tools: read_file write_file bash grep glob web_fetch
 ---
 
 # BUAA Marp PPT Skill
 
-Read the outline from `$1` and produce a complete, self-contained Marp presentation.
+Read the outline from `$1`. If `$1` is empty, discover the outline from the current directory or ask the user. Produce a complete, self-contained Marp presentation.
 
 No other input is needed — no example files, no project-specific paths.
 
@@ -294,7 +294,7 @@ section { --text-p-size: {段落字号}; --text-p-line-height: {段落行高}; }
 
 ---
 
-## §7 常见陷阱速查
+## §6 常见陷阱速查
 
 | 错误 | 正确 | 原因 |
 |:-:|:-:|:-:|
